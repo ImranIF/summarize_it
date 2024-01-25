@@ -39,10 +39,17 @@ dependencies:
   google_fonts: ^6.1.0
   firebase_core: ^2.24.2
   firebase_auth: ^4.16.0
+  provider: ^5.0.0
   gradient_icon: ^2.0.9
   widget_zoom: ^0.0.3
   flutter_easyloading: ^3.0.5
   image_picker: ^1.0.7
+  skeletonizer: ^1.0.1
+  flutter_facebook_auth: ^6.0.4
+  convex_bottom_bar: 
+  cloud_firestore: ^4.14.0
+  firebase_storage: ^11.6.0
+  firebase_app_check: ^0.2.1+8
 
 dev_dependencies:
   flutter_test:

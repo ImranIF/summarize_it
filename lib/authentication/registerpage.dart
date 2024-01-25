@@ -1,9 +1,15 @@
 import 'dart:io';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gradient_icon/gradient_icon.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:summarize_it/authentication/loginpage.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/customtextfield.dart';
@@ -22,13 +28,125 @@ class _RegisterPageState extends State<RegisterPage> {
   bool staySignedIn = false;
   String? imageLocalPath;
   XFile? file;
+  late String imgUrl;
 
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController dateOfBirthController = TextEditingController();
 
-  void signUp() async {}
+  void signUp() async {
+    if (_areAllFieldsFilled()) {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          // create user
+          email: emailController.text.trim(),
+          password: passwordController.text.trim());
+
+      addUserDetails();
+      // add user details
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error', textAlign: TextAlign.center),
+          content: const Text(
+              'Please fill all the required fields before submitting!'),
+          actions: [
+            Center(
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Okay',
+                  style: TextStyle(color: Color.fromARGB(255, 52, 110, 91)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  // Future<String> insertImage() async {
+  //   if (file != null) {
+  // final String imageName = 'image_${DateTime.now().millisecondsSinceEpoch}';
+  // const String imageDirectory = 'Users/';
+  // final photoRef =
+  //     FirebaseStorage.instance.ref().child('$imageDirectory$imageName');
+  // final uploadTask = photoRef.putFile(File(imageLocalPath!));
+  // final snapshot = await uploadTask.whenComplete(() => null);
+  // return imgUrl = await snapshot.ref.getDownloadURL();
+  //   }
+  //   return imgUrl = '';
+  // }
+
+  Future addUserDetails() async {
+    showDialog(
+      context: context,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+    print('-----------------------------------------');
+    // date of birth to timestamp
+    Timestamp dob =
+        Timestamp.fromDate(DateTime.parse(dateOfBirthController.text));
+
+    // insert image
+    final String imageName = 'image_${DateTime.now().millisecondsSinceEpoch}';
+    const String imageDirectory = 'Users/';
+    final photoRef =
+        FirebaseStorage.instance.ref().child('$imageDirectory$imageName');
+    final uploadTask = photoRef.putFile(File(imageLocalPath!));
+    final snapshot = await uploadTask.whenComplete(() => null);
+    imgUrl = await snapshot.ref.getDownloadURL();
+
+    print('-----------------------------------------baka------------------');
+
+    // add user details
+    Map<String, dynamic> userData = {
+      'fullName': fullNameController.text.trim(),
+      'address': addressController.text.trim(),
+      'dateOfBirth': dob,
+      'email': emailController.text.trim(),
+      'password': passwordController.text.trim(),
+      'imageURL': imgUrl,
+    };
+
+    print('-----------------------------------------sussy------------');
+
+    await FirebaseFirestore.instance.collection('users').add(userData);
+
+    Navigator.pop(context);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('User Registered!', textAlign: TextAlign.center),
+        content: const Text('You have successfully created your account!'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const LoginPage(),
+              ),
+            ),
+            child: const Text('Okay'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _areAllFieldsFilled() {
+    return emailController.text.isNotEmpty &&
+        passwordController.text.isNotEmpty &&
+        fullNameController.text.isNotEmpty &&
+        dateOfBirthController.text.isNotEmpty &&
+        addressController.text.isNotEmpty &&
+        imageLocalPath != null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +215,7 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 25),
               SizedBox(
                   width: MediaQuery.of(context).size.width * 0.75,
-                  child: CustomTextField(
+                  child: CustomTextField(false,
                       controller: fullNameController,
                       hintText: 'Imran Farid',
                       obscureText: false,
@@ -106,7 +224,7 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 25),
               SizedBox(
                   width: MediaQuery.of(context).size.width * 0.75,
-                  child: CustomTextField(
+                  child: CustomTextField(false,
                       controller: addressController,
                       hintText: 'BNS ISSA Khan, Chattogram',
                       obscureText: false,
@@ -115,7 +233,16 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 25),
               SizedBox(
                   width: MediaQuery.of(context).size.width * 0.75,
-                  child: CustomTextField(
+                  child: CustomTextFieldWithFunction(true, datePicker,
+                      controller: dateOfBirthController,
+                      hintText: '',
+                      obscureText: false,
+                      labelText: 'Date',
+                      prefixIcon: Icons.calendar_today_rounded)),
+              const SizedBox(height: 25),
+              SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.75,
+                  child: CustomTextField(false,
                       controller: emailController,
                       hintText: 'imranfarid@yandex.com',
                       obscureText: false,
@@ -124,7 +251,7 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 25),
               SizedBox(
                   width: MediaQuery.of(context).size.width * 0.75,
-                  child: CustomTextField(
+                  child: CustomTextField(false,
                       controller: passwordController,
                       hintText: '********',
                       obscureText: true,
@@ -298,6 +425,20 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     ));
+  }
+
+  Future<void> datePicker() async {
+    DateTime? datePicked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(1900),
+        lastDate: DateTime(2100));
+
+    if (datePicked != null) {
+      setState(() {
+        dateOfBirthController.text = datePicked.toString().substring(0, 10);
+      });
+    }
   }
 
   void getImage(ImageSource source) async {

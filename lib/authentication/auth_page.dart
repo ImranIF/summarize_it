@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:summarize_it/authentication/loginpage.dart';
 import 'package:summarize_it/pages/homepage.dart';
+import 'package:summarize_it/screen/homescreen.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
@@ -16,7 +17,7 @@ class AuthPage extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasData) {
           // if snapshot has data, then user is already logged in
-          return const HomePage();
+          return const HomeScreen();
         } else {
           // if snapshot has no data, then user is not logged in
           return const LoginPage();

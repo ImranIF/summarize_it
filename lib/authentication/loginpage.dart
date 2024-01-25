@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gradient_icon/gradient_icon.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:summarize_it/authentication/auth_page.dart';
 import 'package:summarize_it/authentication/registerpage.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/customtextfield.dart';
@@ -36,18 +38,17 @@ class _LoginPageState extends State<LoginPage> {
             email: emailController.text, password: passwordController.text);
         //pop loading circle
         Navigator.pop(context);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AuthPage(),
+            ));
       } on FirebaseAuthException catch (e) {
         //pop loading circle
         Navigator.pop(context);
         print('----------------------------${e.code}');
         // wrong email
-        if (e.code == 'user-not-found') {
-          wrongEmailMessage();
-        }
-        // wrong password
-        else if (e.code == 'wrong-password') {
-          wrongPasswordMessage();
-        } else if (e.code == 'invalid-credential') {
+        if (e.code == 'invalid-credential') {
           wrongInputCredentialMessage();
         }
       }
@@ -72,34 +73,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     }
-  }
-
-  void wrongEmailMessage() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return const AlertDialog(
-            title: Text(
-              'Incorrect Email',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Color.fromARGB(255, 52, 110, 91)),
-            ),
-          );
-        });
-  }
-
-  void wrongPasswordMessage() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return const AlertDialog(
-            title: Text(
-              'Incorrect Password',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Color.fromARGB(255, 52, 110, 91)),
-            ),
-          );
-        });
   }
 
   void wrongInputCredentialMessage() {
@@ -189,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 25),
               SizedBox(
                   width: MediaQuery.of(context).size.width * 0.75,
-                  child: CustomTextField(
+                  child: CustomTextField(false,
                       controller: emailController,
                       hintText: 'imranfarid@yandex.com',
                       obscureText: false,
@@ -198,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 25),
               SizedBox(
                   width: MediaQuery.of(context).size.width * 0.75,
-                  child: CustomTextField(
+                  child: CustomTextField(false,
                       controller: passwordController,
                       hintText: '********',
                       obscureText: true,
