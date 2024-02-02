@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/pages/profile.dart';
+import 'package:summarize_it/screen/spashscreen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,6 +15,17 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final user = FirebaseAuth.instance.currentUser;
+
+  void signUserOut() async {
+    print('---------------------------${user!.email}');
+    print(FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.email)
+        .snapshots);
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const SplashScreen()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +49,13 @@ class _HomePageState extends State<HomePage> {
               child: ListView(
                 shrinkWrap: true,
                 padding: const EdgeInsets.all(50),
-                children: [],
+                children: [
+                  IconButton(
+                      onPressed: signUserOut,
+                      icon: Icon(Icons.logout),
+                      color: Colors.black,
+                      iconSize: 30),
+                ],
               ),
             ),
           )),

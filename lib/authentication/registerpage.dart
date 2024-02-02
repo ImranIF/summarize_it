@@ -38,12 +38,13 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void signUp() async {
     if (_areAllFieldsFilled()) {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          // create user
-          email: emailController.text.trim(),
-          password: passwordController.text.trim());
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              // create user
+              email: emailController.text.trim(),
+              password: passwordController.text.trim());
 
-      addUserDetails();
+      addUserDetails(userCredential.user!);
       // add user details
     } else {
       showDialog(
@@ -81,7 +82,7 @@ class _RegisterPageState extends State<RegisterPage> {
   //   return imgUrl = '';
   // }
 
-  Future addUserDetails() async {
+  Future addUserDetails(User user) async {
     showDialog(
       context: context,
       builder: (context) => const Center(
@@ -112,11 +113,16 @@ class _RegisterPageState extends State<RegisterPage> {
       'email': emailController.text.trim(),
       'password': passwordController.text.trim(),
       'imageURL': imgUrl,
+      'bio': '',
+      'postCount': 0,
     };
 
     print('-----------------------------------------sussy------------');
 
-    await FirebaseFirestore.instance.collection('users').add(userData);
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.email)
+        .set(userData);
 
     Navigator.pop(context);
 
@@ -237,7 +243,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       controller: dateOfBirthController,
                       hintText: '',
                       obscureText: false,
-                      labelText: 'Date',
+                      labelText: 'Date of Birth',
                       prefixIcon: Icons.calendar_today_rounded)),
               const SizedBox(height: 25),
               SizedBox(
