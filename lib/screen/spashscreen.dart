@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:lottie/lottie.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:summarize_it/authentication/auth_page.dart';
@@ -168,11 +169,15 @@ class _ClickHereState extends State<ClickHere> {
     return isWidgetVisible
         ? InkWell(
             onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AuthPage(),
-                  ));
+              Navigator.of(context)
+                  .push(PageRouteBuilder(pageBuilder: (context, animation, _) {
+                return const AuthPage();
+              }));
+              // Navigator.push(
+              //     context,
+              //     MaterialPageRoute(
+              //       builder: (context) => const AuthPage(),
+              //     ));
             },
             child: Lottie.asset(
               'assets/click-here-to-enter.json',
