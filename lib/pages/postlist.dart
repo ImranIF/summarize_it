@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:widget_zoom/widget_zoom.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class PostList extends StatefulWidget {
   const PostList({super.key});
@@ -47,8 +48,18 @@ class PostListState extends State<PostList> {
                             return SingleChildScrollView(
                                 child: ListView.builder(
                                     shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
                                     itemCount: userPosts.length,
                                     itemBuilder: (context, index) {
+                                      final postTime =
+                                          Timestamp.fromMillisecondsSinceEpoch(
+                                              userPosts[index]['timestamp']
+                                                  as int);
+                                      print(postTime);
+                                      final formattedPostTime =
+                                          timeago.format(postTime.toDate());
+                                      print(formattedPostTime);
                                       final user =
                                           FirebaseAuth.instance.currentUser!;
                                       return Container(
@@ -135,7 +146,18 @@ class PostListState extends State<PostList> {
                                                           color: Color.fromARGB(
                                                               255, 16, 66, 58),
                                                         ),
-                                                      )
+                                                      ),
+                                                      // show time of post
+                                                      // DateTime fetchedTime = DateTime.fromMillisecondsSinceEpoch(data['time']);
+                                                      Text(
+                                                        formattedPostTime,
+                                                        style:
+                                                            GoogleFonts.georama(
+                                                          fontSize: 10,
+                                                          color: Color.fromARGB(
+                                                              255, 16, 66, 58),
+                                                        ),
+                                                      ),
                                                     ],
                                                   ),
                                                 ),
@@ -261,9 +283,19 @@ class PostListState extends State<PostList> {
                                                     ),
                                                     SizedBox(
                                                       height: 20,
-                                                      width: 100,
+                                                      width: 200,
                                                       child:
                                                           Text('Description'),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 20,
+                                                      width: 100,
+                                                      child: Text('Username'),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 20,
+                                                      width: 100,
+                                                      child: Text('Time'),
                                                     ),
                                                   ],
                                                 ),

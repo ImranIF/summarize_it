@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gradient_icon/gradient_icon.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:summarize_it/authentication/auth_service.dart';
 import 'package:summarize_it/authentication/loginpage.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/customtextfield.dart';
@@ -152,7 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
         passwordController.text.isNotEmpty &&
         fullNameController.text.isNotEmpty &&
         userNameController.text.isNotEmpty &&
-        uniqueUser &&
+        uniqueUser != true &&
         dateOfBirthController.text.isNotEmpty &&
         addressController.text.isNotEmpty &&
         imageLocalPath != null;
@@ -444,7 +445,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   15.0,
                   Colors.black,
                   text: 'Sign in with Google',
-                  onPressed: () {},
+                  onPressed: () => AuthService().signInWithGoogle(),
                   hpadding: 15,
                   wpadding: 15,
                   borderRadius: 15.0,

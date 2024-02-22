@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gradient_icon/gradient_icon.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:summarize_it/authentication/auth_page.dart';
+import 'package:summarize_it/authentication/auth_service.dart';
 import 'package:summarize_it/authentication/registerpage.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/customtextfield.dart';
@@ -272,7 +273,7 @@ class _LoginPageState extends State<LoginPage> {
                   15.0,
                   Colors.black,
                   text: 'Sign in with Google',
-                  onPressed: () {},
+                  onPressed: () => AuthService().signInWithGoogle(),
                   hpadding: 15,
                   wpadding: 15,
                   borderRadius: 15.0,
