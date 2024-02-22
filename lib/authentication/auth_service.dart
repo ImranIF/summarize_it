@@ -1,17 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   signInWithGoogle() async {
-    print('signing in with google');
     // clear any previous sign-in
     await GoogleSignIn().signOut();
 
     // begin interactive sign-in process
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-    print('google user: $googleUser');
     // authenticate with google
     final GoogleSignInAuthentication googleAuth =
         await googleUser!.authentication;
@@ -24,9 +23,11 @@ class AuthService {
 
     // sign in with credential
     try {
-      final UserCredential =
+      final userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
-      final User? user = UserCredential.user;
+      print('----------------user signed in--------------------');
+      final User? user = userCredential.user;
+      print('----------------user: $user--------------------');
 
       if (user != null) {
         // user is signed in
@@ -57,9 +58,8 @@ class AuthService {
             });
           }
         });
+        return userCredential;
       }
-
-      return UserCredential;
     } on Exception catch (e) {
       // TODO
       print(e);
