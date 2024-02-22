@@ -89,6 +89,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               )),
               const SizedBox(height: 15),
+              // divider
               Image.asset('assets/line.png',
                   width: MediaQuery.of(context).size.width * 0.5),
               const SizedBox(height: 10),

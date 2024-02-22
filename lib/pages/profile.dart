@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/textbox.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
@@ -156,13 +157,14 @@ class _ProfileState extends State<Profile> {
                               const SizedBox(height: 50),
                               //profile
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                // crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.only(
-                                        left: 30, right: 10),
-                                    alignment: Alignment.topLeft,
+                                        left: 10, right: 10),
+                                    alignment: Alignment.center,
                                     child: WidgetZoom(
                                         heroAnimationTag: 'profile',
                                         zoomWidget: CircleAvatar(
@@ -176,80 +178,92 @@ class _ProfileState extends State<Profile> {
                                         )),
                                   ),
                                   // const SizedBox(width: 20),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            userData['fullName'],
-                                            textAlign: TextAlign.left,
-                                            style: const TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                              color: Color.fromARGB(
-                                                  255, 40, 94, 76),
-                                            ),
-                                          ),
-                                          IconButton(
-                                              onPressed: () =>
-                                                  editField('Username'),
-                                              icon: const Icon(Icons.settings))
-                                        ],
-                                      ),
-                                      // TextBox(
-                                      //   text: userData['fullName'],
-                                      //   // sectionName: 'Username',
-                                      //   onPressed: () => editField('Username'),
-                                      // ),
-                                      Text(user!.email!,
-                                          textAlign: TextAlign.left,
-                                          style: const TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                              color: Color.fromARGB(
-                                                  255, 39, 92, 70))),
-                                    ],
-                                  ),
                                 ],
                               ),
                               // Icon(Icons.person, size: 60, color: Colors.white),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 15),
                               //user email
                               //user detail
 
-                              Padding(
-                                padding: EdgeInsets.only(left: 25),
-                                child: Text('My Details',
-                                    style: GoogleFonts.georama(
-                                      fontSize: 16,
-                                      color: const Color.fromARGB(
-                                          255, 35, 141, 123),
-                                      // ,
-                                      fontWeight: FontWeight.bold,
-                                    )),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                // crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        userData['fullName'],
+                                        textAlign: TextAlign.left,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Color.fromARGB(255, 40, 94, 76),
+                                        ),
+                                      ),
+                                      // IconButton(
+                                      //     onPressed: () =>
+                                      //         editField('Username'),
+                                      //     icon: const Icon(Icons.settings))
+                                    ],
+                                  ),
+                                  // TextBox(
+                                  //   text: userData['fullName'],
+                                  //   // sectionName: 'Username',
+                                  //   onPressed: () => editField('Username'),
+                                  // ),
+                                  const SizedBox(height: 5),
+                                  Text(user!.email!,
+                                      textAlign: TextAlign.left,
+                                      style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Color.fromARGB(255, 39, 92, 70))),
+                                ],
                               ),
+
+                              const SizedBox(height: 10),
+
+                              Column(
+                                children: [
+                                  Image.asset('assets/line.png',
+                                      width: MediaQuery.of(context).size.width *
+                                          0.8),
+                                ],
+                              ),
+
+                              // Padding(
+                              //   padding: EdgeInsets.only(left: 25),
+                              //   child: Text('My Details',
+                              //       style: GoogleFonts.georama(
+                              //         fontSize: 16,
+                              //         color: const Color.fromARGB(
+                              //             255, 35, 141, 123),
+                              //         // ,
+                              //         fontWeight: FontWeight.bold,
+                              //       )),
+                              // ),
 
                               //username
 
                               //bio
-                              customTextBox(
-                                text: userData['bio'],
-                                sectionName: 'Bio',
-                                onPressed: () => editField('Bio'),
-                              ),
+                              // customTextBox(
+                              //   text: userData['bio'],
+                              //   sectionName: 'Bio',
+                              //   onPressed: () => editField('Bio'),
+                              // ),
 
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 10),
 
                               //user posts count
                               Padding(
                                 padding: EdgeInsets.only(left: 25),
                                 child: Text('My Posts',
-                                    style: GoogleFonts.georama(
+                                    style: GoogleFonts.cormorantSc(
                                       fontSize: 16,
-                                      color: const Color.fromARGB(
-                                          255, 35, 141, 123),
+                                      color: Color.fromARGB(255, 28, 116, 101),
                                       // ,
                                       fontWeight: FontWeight.bold,
                                     )),
@@ -273,12 +287,333 @@ class _ProfileState extends State<Profile> {
                           );
                         } else if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
+                          return Skeletonizer(
+                              enabled: true,
+                              child: ListView(shrinkWrap: true, children: [
+                                const SizedBox(height: 50),
+                                //profile
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.only(
+                                          left: 10, right: 10),
+                                      alignment: Alignment.center,
+                                      child: const CircleAvatar(
+                                        radius: 50,
+                                        backgroundImage: AssetImage(
+                                            'assets/placeholder.png'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 15),
+
+                                const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          height: 20,
+                                          width: 100,
+                                          child: const Text('Username'),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 5),
+                                    SizedBox(
+                                      height: 20,
+                                      width: 100,
+                                      child: const Text('Email'),
+                                    ),
+                                  ],
+                                ),
+                              ]));
                         } else {
                           return const Center(child: Text('Error'));
                         }
                       }),
+                  StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                      stream: FirebaseFirestore.instance
+                          .collection('posts')
+                          .where('email',
+                              isEqualTo:
+                                  FirebaseAuth.instance.currentUser!.email)
+                          .orderBy('timestamp', descending: true)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          final userPosts = snapshot.data!.docs;
+                          return SingleChildScrollView(
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: userPosts.length,
+                                itemBuilder: (context, index) {
+                                  bool isLiked = userPosts[index]['likes']
+                                      .contains(user.email);
+                                  return Container(
+                                    margin: const EdgeInsets.only(
+                                        left: 40, right: 40, top: 25),
+                                    padding: const EdgeInsets.only(
+                                        left: 10, right: 10, top: 10),
+                                    decoration: BoxDecoration(
+                                      color: Color.fromARGB(255, 134, 207, 191),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Column(
+                                              children: [
+                                                userPosts[index]['image'] !=
+                                                        null
+                                                    ? WidgetZoom(
+                                                        heroAnimationTag:
+                                                            'postImage',
+                                                        zoomWidget:
+                                                            Image.network(
+                                                                userPosts[index]
+                                                                    ['image'],
+                                                                height: 100,
+                                                                width: 100),
+                                                      )
+                                                    : const SizedBox(),
+                                              ],
+                                            ),
+                                            userPosts[index]['image'] != null
+                                                ? const SizedBox(width: 10)
+                                                : const SizedBox(),
+                                            Expanded(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    userPosts[index]['title'],
+                                                    style: GoogleFonts.georama(
+                                                      fontSize: 15,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              35,
+                                                              141,
+                                                              123),
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    userPosts[index]
+                                                        ['description'],
+                                                    style: GoogleFonts.georama(
+                                                      fontSize: 10,
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255, 25, 102, 89),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        // add like button and comment button icon
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            IconButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    // print(isLiked);
+                                                    // isLiked = !isLiked;
+                                                    // print(isLiked);
+
+                                                    if (userPosts[index]
+                                                                ['likes']
+                                                            .contains(
+                                                                user.email) !=
+                                                        true) {
+                                                      print(
+                                                          '---------------${userPosts[index]['likes']}');
+                                                      userPosts[index]
+                                                          .reference
+                                                          .update({
+                                                        'likes': FieldValue
+                                                            .arrayUnion(
+                                                                [user.email]),
+                                                        'likeCount': FieldValue
+                                                            .increment(1),
+                                                      });
+                                                      // FirebaseFirestore.instance
+                                                      //     .collection('posts')
+                                                      //     .doc('postId')
+                                                      //     .update({
+                                                      //   'likes': FieldValue
+                                                      //       .arrayRemove(
+                                                      //           [user.email]),
+                                                      // }
+                                                      // );
+                                                    } else {
+                                                      // userPosts[index]['likes']
+                                                      //     .remove(user.email);
+                                                      print(
+                                                          'ehe---------------?${userPosts[index]['likes']}');
+                                                      userPosts[index]
+                                                          .reference
+                                                          .update({
+                                                        'likes': FieldValue
+                                                            .arrayRemove(
+                                                                [user.email]),
+                                                        'likeCount': FieldValue
+                                                            .increment(-1)
+                                                      });
+                                                      // FirebaseFirestore.instance
+                                                      //     .collection('posts')
+                                                      //     .doc('postId')
+                                                      //     .update({
+                                                      //   'likes':
+                                                      //       FieldValue.arrayUnion(
+                                                      //           [user.email]),
+                                                      // });
+                                                    }
+                                                  });
+                                                },
+                                                icon: Icon(
+                                                    Icons
+                                                        .favorite_border_outlined,
+                                                    color: userPosts[index]
+                                                                ['likes']
+                                                            .contains(
+                                                                user.email)
+                                                        ? Colors.red
+                                                        : Colors.black,
+                                                    size: 10)),
+                                            Text(userPosts[index]['likeCount']
+                                                .toString()),
+                                            IconButton(
+                                                onPressed: () {},
+                                                icon: const Icon(
+                                                  Icons.comment,
+                                                  size: 10,
+                                                )),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                }),
+                            //   return ListTile(
+                            //     title: Text(userPosts[index]['title']),
+                            //     subtitle:
+                            //         Text(userPosts[index]['description']),
+                            //     leading: userPosts[index]['image'] != null
+                            //         ? Image.network(
+                            //             userPosts[index]['image'])
+                            //         : null,
+                            //   );
+                            // }),
+                          );
+                        } else if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Skeletonizer(
+                            enabled: true,
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: 5,
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                    margin: const EdgeInsets.only(
+                                        left: 40, right: 40, top: 25),
+                                    padding: const EdgeInsets.only(
+                                        left: 10, right: 10, top: 10),
+                                    decoration: BoxDecoration(
+                                      color: Color.fromARGB(255, 134, 207, 191),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        const Row(
+                                          children: [
+                                            Column(
+                                              children: [
+                                                SizedBox(
+                                                  height: 100,
+                                                  width: 100,
+                                                  child:
+                                                      Icon(Icons.abc_outlined),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(width: 10),
+                                            Expanded(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  SizedBox(
+                                                    height: 20,
+                                                    width: 100,
+                                                    child: Text('Title'),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 20,
+                                                    width: 100,
+                                                    child: Text('Description'),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        // add like button and comment button icon
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            IconButton(
+                                                onPressed: () {},
+                                                icon: const Icon(
+                                                    Icons
+                                                        .favorite_border_outlined,
+                                                    color: Colors.black,
+                                                    size: 10)),
+                                            const Text('0'),
+                                            IconButton(
+                                                onPressed: () {},
+                                                icon: const Icon(
+                                                  Icons.comment,
+                                                  size: 10,
+                                                )),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                }),
+                          );
+                          // return const Center(
+                          //     child: CircularProgressIndicator());
+                        } else {
+                          return const Center(child: Text('Error'));
+                        }
+                      }),
+                  const SizedBox(height: 25),
                 ],
               )),
             ),
@@ -317,6 +652,8 @@ class _ProfileState extends State<Profile> {
     // continue accessing the position of the device.
     return await Geolocator.getCurrentPosition();
   }
+
+  void toggleLike() {}
 
   Future<void> openMap(String latitude, String longitude) async {
     String googleURL =

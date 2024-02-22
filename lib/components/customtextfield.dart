@@ -169,3 +169,70 @@ class CustomTextFieldWithFunction extends StatelessWidget {
     );
   }
 }
+
+class CustomTextFieldDescription extends StatelessWidget {
+  final TextEditingController controller;
+  final String hintText;
+  final String labelText;
+  final bool obscureText;
+  final IconData prefixIcon;
+  final int maxLines;
+  bool readonly = false;
+  bool hasLabel;
+  bool hasPrefixIcon;
+
+  CustomTextFieldDescription(this.readonly,
+      {super.key,
+      this.labelText = "",
+      this.prefixIcon = Icons.description,
+      required this.controller,
+      required this.maxLines,
+      required this.hintText,
+      required this.obscureText,
+      required this.hasLabel,
+      required this.hasPrefixIcon});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      obscureText: obscureText,
+      style: const TextStyle(
+        color: Colors.black,
+      ),
+      readOnly: readonly,
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.all(15),
+        hintText: hintText,
+        hintStyle: TextStyle(
+          color: const Color.fromARGB(255, 175, 140, 76).withOpacity(0.5),
+        ),
+        labelText: hasLabel ? labelText : null,
+        labelStyle: hasLabel
+            ? const TextStyle(
+                color: Colors.black,
+                backgroundColor: Color.fromARGB(255, 177, 226, 211),
+                fontWeight: FontWeight.bold,
+              )
+            : null,
+        prefixIcon: hasPrefixIcon ? Icon(prefixIcon) : null,
+        suffixIcon: hasPrefixIcon
+            ? IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: () => controller.clear())
+            : null,
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: Color.fromARGB(255, 175, 140, 76)),
+        ),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: Color.fromARGB(255, 76, 172, 175)),
+        ),
+        fillColor: const Color.fromARGB(255, 177, 226, 211),
+        filled: true,
+      ),
+    );
+  }
+}

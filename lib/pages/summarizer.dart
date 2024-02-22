@@ -44,31 +44,47 @@ class _SummarizerState extends State<Summarizer> {
                   child: Column(
                       // crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Summarize Engine',
+                            style: GoogleFonts.cormorantSc().copyWith(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
+                              color: const Color.fromARGB(255, 101, 182, 144),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
                         TextField(
                           textAlign: TextAlign.left,
                           controller: inputController,
                           maxLines: 8,
                           decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  color: Color.fromARGB(255, 100, 52, 34),
-                                ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 100, 52, 34),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  color: Color.fromARGB(255, 34, 96, 100),
-                                ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 34, 96, 100),
                               ),
-                              floatingLabelAlignment:
-                                  FloatingLabelAlignment.center,
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.always,
-                              labelText: "Enter text to summarize",
-                              labelStyle: TextStyle(
-                                color: Colors.brown.shade800,
-                              )),
+                            ),
+                            floatingLabelAlignment:
+                                FloatingLabelAlignment.center,
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                            labelText: "Enter text to summarize",
+                            labelStyle: TextStyle(
+                              color: Colors.brown.shade800,
+                            ),
+                            fillColor: const Color.fromARGB(255, 177, 226, 211)
+                                .withOpacity(0.5),
+                            filled: true,
+                          ),
                         ),
                         const SizedBox(height: 10),
                         Material(

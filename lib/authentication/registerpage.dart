@@ -116,7 +116,6 @@ class _RegisterPageState extends State<RegisterPage> {
       'email': emailController.text.trim(),
       'password': passwordController.text.trim(),
       'imageURL': imgUrl,
-      'bio': '',
       'postCount': 0,
     };
 
@@ -287,7 +286,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       onPressed: () {
                         getImage(ImageSource.camera);
                       },
-                      icon: const Icon(Icons.camera,
+                      icon: const Icon(Icons.photo_camera,
                           color: Color.fromARGB(255, 12, 87, 105)),
                       label: const Text('Capture',
                           style: TextStyle(
@@ -297,7 +296,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       onPressed: () {
                         getImage(ImageSource.gallery);
                       },
-                      icon: const Icon(Icons.photo_album,
+                      icon: const Icon(Icons.photo_library_rounded,
                           color: Color.fromARGB(255, 12, 87, 105)),
                       label: const Text(
                         'Gallery',

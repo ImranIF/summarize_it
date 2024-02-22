@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:summarize_it/authentication/loginpage.dart';
+import 'package:summarize_it/authentication/registerpage.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -25,6 +27,11 @@ class MyApp extends StatelessWidget {
       ),
       home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/splash': (context) => const SplashScreen(),
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+      },
     );
   }
 }
