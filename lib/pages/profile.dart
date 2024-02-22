@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/textbox.dart';
@@ -24,6 +25,7 @@ class _ProfileState extends State<Profile> {
   bool isLoading = false;
   void signUserOut() async {
     // print('---------------------------${user!.email}');
+    await GoogleSignIn().signOut();
     await FirebaseAuth.instance.signOut();
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const SplashScreen()));

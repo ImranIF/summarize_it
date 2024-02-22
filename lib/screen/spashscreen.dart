@@ -185,7 +185,7 @@ class _ClickHereState extends State<ClickHere> {
               fit: BoxFit.fill,
               height: 50.0,
               width: 50.0,
-              frameRate: const FrameRate(30),
+              frameRate: const FrameRate(60),
               // controller: animationController,
               animate: true,
             ),
