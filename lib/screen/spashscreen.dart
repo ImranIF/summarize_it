@@ -158,7 +158,7 @@ class _ClickHereState extends State<ClickHere> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 1), () {
       setState(() {
         isWidgetVisible = true;
       });

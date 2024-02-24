@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
         body: pageOptions[selectedPage],
         bottomNavigationBar: ConvexAppBar.badge(
             const {
-              3: '10+', // badge value
+              // 3: '10+', // badge value
             },
             backgroundColor: const Color.fromARGB(255, 60, 139, 136),
             items: const [
