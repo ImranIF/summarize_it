@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -22,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   bool isLoading = false;
   final String welcomeMsg = 'Welcome back! You have been missed';
   final String accountCreateMsg = "Don't have an account? Create one today!";
-  bool staySignedIn = false;
+  bool forgotPassword = false;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
@@ -35,17 +37,49 @@ class _LoginPageState extends State<LoginPage> {
 
       //try sign in
       try {
+        // signIn(context);
         await FirebaseAuth.instance.signInWithEmailAndPassword(
             email: emailController.text, password: passwordController.text);
-        //pop loading circle
-        setState(() {
-          isLoading = false;
-        });
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AuthPage(),
-            ));
+
+        // verify email
+        if (FirebaseAuth.instance.currentUser!.emailVerified != true) {
+          await FirebaseAuth.instance.currentUser!.sendEmailVerification();
+
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Email Sent', textAlign: TextAlign.center),
+              content: const Text(
+                  'An email has been sent to your email address. Please click on the link in the email to sign in.'),
+              actions: [
+                Center(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'Okay',
+                      style: TextStyle(color: Color.fromARGB(255, 52, 110, 91)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+
+          // start timer to check email verification
+          Timer.periodic(const Duration(seconds: 2), (timer) {
+            checkEmailVerification(timer);
+          });
+        } else {
+          //pop loading circle
+          setState(() {
+            isLoading = false;
+          });
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AuthPage(),
+              ));
+        }
       } on FirebaseAuthException catch (e) {
         //pop loading circle
         setState(() {
@@ -78,6 +112,38 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     }
+  }
+
+  Future<void> checkEmailVerification(timer) async {
+    // reload user to check email verification
+    await FirebaseAuth.instance.currentUser!.reload();
+    print(
+        '------------------------${FirebaseAuth.instance.currentUser!.emailVerified}');
+    if (FirebaseAuth.instance.currentUser!.emailVerified) {
+      timer.cancel();
+      //pop loading circle
+      setState(() {
+        isLoading = false;
+      });
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AuthPage(),
+          ));
+    }
+  }
+
+  Future<void> signIn(BuildContext context) async {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text, password: passwordController.text);
+    setState(() {
+      isLoading = false;
+    });
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AuthPage(),
+        ));
   }
 
   void wrongInputCredentialMessage() {
@@ -131,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
               shaderCallback: (rect) {
                 return RadialGradient(
                   radius: value * 5,
-                  colors: [
+                  colors: const [
                     Colors.white,
                     Colors.white,
                     Colors.transparent,
@@ -239,17 +305,17 @@ class _LoginPageState extends State<LoginPage> {
                     visualDensity: VisualDensity.compact,
                     controlAffinity: ListTileControlAffinity.leading,
                     title: Text(
-                      'Stay signed in?',
+                      'Forgot Password? ',
                       style: GoogleFonts.merriweather(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey.shade800,
                       ),
                     ),
-                    value: staySignedIn,
+                    value: forgotPassword,
                     onChanged: (newValue) {
                       setState(() {
-                        staySignedIn = newValue!;
+                        forgotPassword = newValue!;
                       });
                     },
                   ),

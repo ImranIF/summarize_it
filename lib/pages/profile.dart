@@ -25,6 +25,8 @@ class _ProfileState extends State<Profile> {
   bool isLoading = false;
   void signUserOut() async {
     // print('---------------------------${user!.email}');
+    // make firebase email verified false so i must verify again
+
     await GoogleSignIn().signOut();
     await FirebaseAuth.instance.signOut();
     Navigator.pushReplacement(
