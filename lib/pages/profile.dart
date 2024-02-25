@@ -13,6 +13,7 @@ import 'package:summarize_it/components/textbox.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:widget_zoom/widget_zoom.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -358,6 +359,12 @@ class _ProfileState extends State<Profile> {
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: userPosts.length,
                                 itemBuilder: (context, index) {
+                                  final postTime =
+                                      Timestamp.fromMillisecondsSinceEpoch(
+                                          userPosts[index]['timestamp'] as int);
+                                  print(postTime);
+                                  final formattedPostTime =
+                                      timeago.format(postTime.toDate());
                                   bool isLiked = userPosts[index]['likes']
                                       .contains(user.email);
                                   return Container(
@@ -422,6 +429,20 @@ class _ProfileState extends State<Profile> {
                                                       color:
                                                           const Color.fromARGB(
                                                               255, 25, 102, 89),
+                                                    ),
+                                                  ),
+                                                  const Divider(
+                                                    color: Color.fromARGB(
+                                                        255, 66, 129, 121),
+                                                    indent: 15,
+                                                    endIndent: 15,
+                                                  ),
+                                                  Text(
+                                                    formattedPostTime,
+                                                    style: GoogleFonts.georama(
+                                                      fontSize: 10,
+                                                      color: Color.fromARGB(
+                                                          255, 16, 66, 58),
                                                     ),
                                                   ),
                                                 ],
@@ -577,6 +598,11 @@ class _ProfileState extends State<Profile> {
                                                     height: 20,
                                                     width: 100,
                                                     child: Text('Description'),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 20,
+                                                    width: 100,
+                                                    child: Text('Time'),
                                                   ),
                                                 ],
                                               ),

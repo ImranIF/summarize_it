@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:summarize_it/components/customtextfield.dart';
 import 'package:widget_zoom/widget_zoom.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -14,6 +15,45 @@ class PostList extends StatefulWidget {
 }
 
 class PostListState extends State<PostList> {
+  final searchController = TextEditingController();
+  Stream<QuerySnapshot> streamQuery = FirebaseFirestore.instance
+      .collection('posts')
+      .orderBy('timestamp', descending: true)
+      .snapshots();
+
+  @override
+  void initState() {
+    super.initState();
+    searchController.addListener(() {
+      setState(() {
+        String searchText = searchController.text;
+        if (searchText.isEmpty) {
+          // do nothing
+          streamQuery = FirebaseFirestore.instance
+              .collection('posts')
+              .orderBy('timestamp', descending: true)
+              .snapshots();
+        } else {
+          // search for posts
+          streamQuery = FirebaseFirestore.instance
+              .collection('posts')
+              .where('title', isGreaterThanOrEqualTo: searchText.trim())
+              .where('title', isLessThan: '${searchText.trim()}z')
+              // .orderBy('timestamp', descending: true)
+              .snapshots();
+
+          // FirebaseFirestore.instance.collection('posts').where('title', isGreaterThanOrEqualTo: searchText).snapshots();
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,15 +78,30 @@ class PostListState extends State<PostList> {
                     // search bar
                     // query snapshot
                     StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                        stream: FirebaseFirestore.instance
-                            .collection('posts')
-                            .orderBy('timestamp', descending: true)
-                            .snapshots(),
+                        stream: streamQuery
+                            as Stream<QuerySnapshot<Map<String, dynamic>>>,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
-                            final userPosts = snapshot.data!.docs;
+                            var userPosts = snapshot.data!.docs;
                             return SingleChildScrollView(
-                                child: ListView.builder(
+                                child: Column(
+                              children: [
+                                // search bar
+                                Container(
+                                  margin: const EdgeInsets.only(
+                                      left: 30, right: 30, top: 25),
+                                  child: CustomTextFieldDescription(false,
+                                      controller: searchController,
+                                      maxLines: 1,
+                                      hintText: 'Search',
+                                      obscureText: false,
+                                      hasLabel: false,
+                                      hasPrefixIcon: true,
+                                      prefixIcon: Icons.search,
+                                      hasOnChanged: false),
+                                ),
+                                // query snapshot
+                                ListView.builder(
                                     shrinkWrap: true,
                                     physics:
                                         const NeverScrollableScrollPhysics(),
@@ -64,7 +119,7 @@ class PostListState extends State<PostList> {
                                           FirebaseAuth.instance.currentUser!;
                                       return Container(
                                         margin: const EdgeInsets.only(
-                                            left: 40, right: 40, top: 25),
+                                            left: 30, right: 30, top: 25),
                                         padding: const EdgeInsets.only(
                                             left: 10, right: 10, top: 10),
                                         decoration: BoxDecoration(
@@ -234,101 +289,127 @@ class PostListState extends State<PostList> {
                                           ],
                                         ),
                                       );
-                                    }));
+                                    }),
+                              ],
+                            ));
                           } else if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return Skeletonizer(
                               enabled: true,
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: 5,
-                                  itemBuilder: (context, index) {
-                                    return Container(
-                                      margin: const EdgeInsets.only(
-                                          left: 40, right: 40, top: 25),
-                                      padding: const EdgeInsets.only(
-                                          left: 10, right: 10, top: 10),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            Color.fromARGB(255, 134, 207, 191),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          const Row(
+                              child: Column(
+                                children: [
+                                  // search bar
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        left: 40, right: 40, top: 25),
+                                    child: CustomTextFieldDescription(false,
+                                        controller: searchController,
+                                        maxLines: 1,
+                                        hintText: 'Search',
+                                        obscureText: false,
+                                        hasLabel: false,
+                                        hasPrefixIcon: true,
+                                        prefixIcon: Icons.search,
+                                        hasOnChanged: true),
+                                  ),
+
+                                  ListView.builder(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: 5,
+                                      itemBuilder: (context, index) {
+                                        return Container(
+                                          margin: const EdgeInsets.only(
+                                              left: 40, right: 40, top: 25),
+                                          padding: const EdgeInsets.only(
+                                              left: 10, right: 10, top: 10),
+                                          decoration: BoxDecoration(
+                                            color: Color.fromARGB(
+                                                255, 134, 207, 191),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Column(
                                             children: [
-                                              Column(
+                                              const Row(
                                                 children: [
-                                                  SizedBox(
-                                                    height: 100,
-                                                    width: 100,
-                                                    child: Icon(
-                                                        Icons.abc_outlined),
+                                                  Column(
+                                                    children: [
+                                                      SizedBox(
+                                                        height: 100,
+                                                        width: 100,
+                                                        child: Icon(
+                                                            Icons.abc_outlined),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Expanded(
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        SizedBox(
+                                                          height: 20,
+                                                          width: 100,
+                                                          child: Text('Title'),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 20,
+                                                          width: 200,
+                                                          child: Text(
+                                                              'Description'),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 20,
+                                                          width: 100,
+                                                          child:
+                                                              Text('Username'),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 20,
+                                                          width: 100,
+                                                          child: Text('Time'),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ],
                                               ),
-                                              SizedBox(width: 10),
-                                              Expanded(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    SizedBox(
-                                                      height: 20,
-                                                      width: 100,
-                                                      child: Text('Title'),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 20,
-                                                      width: 200,
-                                                      child:
-                                                          Text('Description'),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 20,
-                                                      width: 100,
-                                                      child: Text('Username'),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 20,
-                                                      width: 100,
-                                                      child: Text('Time'),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
+                                              // add like button and comment button icon
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  IconButton(
+                                                      onPressed: () {},
+                                                      icon: const Icon(
+                                                          Icons
+                                                              .favorite_border_outlined,
+                                                          color: Colors.black,
+                                                          size: 10)),
+                                                  const Text('0'),
+                                                  IconButton(
+                                                      onPressed: () {},
+                                                      icon: const Icon(
+                                                        Icons.comment,
+                                                        size: 10,
+                                                      )),
+                                                ],
+                                              )
                                             ],
                                           ),
-                                          // add like button and comment button icon
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              IconButton(
-                                                  onPressed: () {},
-                                                  icon: const Icon(
-                                                      Icons
-                                                          .favorite_border_outlined,
-                                                      color: Colors.black,
-                                                      size: 10)),
-                                              const Text('0'),
-                                              IconButton(
-                                                  onPressed: () {},
-                                                  icon: const Icon(
-                                                    Icons.comment,
-                                                    size: 10,
-                                                  )),
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    );
-                                  }),
+                                        );
+                                      }),
+                                ],
+                              ),
                             );
                             // return const Center(
                             //     child: CircularProgressIndicator());
