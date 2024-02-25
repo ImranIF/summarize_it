@@ -32,6 +32,7 @@ class _PostScreenState extends State<PostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // resizeToAvoidBottomInset: false,
       body: Container(
           height: double.infinity,
           width: double.infinity,
@@ -48,156 +49,162 @@ class _PostScreenState extends State<PostScreen> {
           child: SafeArea(
             maintainBottomViewPadding: true,
             child: Center(
-              child: ListView(
-                shrinkWrap: true,
-                padding: const EdgeInsets.all(30),
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Create Post',
-                      style: GoogleFonts.cormorantSc().copyWith(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
+              child: SingleChildScrollView(
+                child: ListView(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(30),
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Create Post',
+                        style: GoogleFonts.cormorantSc().copyWith(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.5,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Image.asset('assets/line.png',
-                      width: MediaQuery.of(context).size.width * 0.5),
-                  const SizedBox(height: 15),
-                  Text('Enter Title',
-                      style: GoogleFonts.cormorant().copyWith(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: const Color.fromARGB(255, 35, 141, 123))),
-                  const SizedBox(height: 15),
-                  CustomTextFieldDescription(false,
-                      controller: titleController,
-                      maxLines: 1,
-                      hintText: 'e.g: Impact of neural Knowledge Graphs ',
-                      obscureText: false,
-                      hasLabel: false,
-                      hasPrefixIcon: false),
-                  const SizedBox(height: 15),
-                  Text('Enter Description',
-                      style: GoogleFonts.cormorant().copyWith(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: const Color.fromARGB(255, 35, 141, 123))),
-                  const SizedBox(height: 15),
-                  CustomTextFieldDescription(false,
-                      controller: descriptionController,
-                      maxLines: 6,
-                      hintText: "e.g: The earth is nearing destruction",
-                      obscureText: false,
-                      hasLabel: false,
-                      hasPrefixIcon: false),
-                  const SizedBox(height: 15),
-                  Text('Attach Image (Optional)',
-                      style: GoogleFonts.cormorant().copyWith(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: const Color.fromARGB(255, 35, 141, 123))),
-                  imageLocalPath == null
-                      ? const Icon(
-                          Icons.photo,
-                          size: 60,
-                        )
-                      : WidgetZoom(
-                          heroAnimationTag: 'postImage',
-                          zoomWidget: Image.file(
-                            File(imageLocalPath!),
-                            height: 60,
+                    const SizedBox(height: 10),
+                    Image.asset('assets/line.png',
+                        width: MediaQuery.of(context).size.width * 0.5),
+                    const SizedBox(height: 15),
+                    Text('Enter Title',
+                        style: GoogleFonts.cormorant().copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: const Color.fromARGB(255, 35, 141, 123))),
+                    const SizedBox(height: 15),
+                    CustomTextFieldDescription(false,
+                        controller: titleController,
+                        maxLines: 1,
+                        hintText: 'e.g: Impact of neural Knowledge Graphs ',
+                        obscureText: false,
+                        hasLabel: false,
+                        hasPrefixIcon: false,
+                        hasOnChanged: false),
+                    const SizedBox(height: 15),
+                    Text('Enter Description',
+                        style: GoogleFonts.cormorant().copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: const Color.fromARGB(255, 35, 141, 123))),
+                    const SizedBox(height: 15),
+                    CustomTextFieldDescription(false,
+                        controller: descriptionController,
+                        maxLines: 6,
+                        hintText: "e.g: The earth is nearing destruction",
+                        obscureText: false,
+                        hasLabel: false,
+                        hasPrefixIcon: false,
+                        hasOnChanged: false),
+                    const SizedBox(height: 15),
+                    Text('Attach Image (Optional)',
+                        style: GoogleFonts.cormorant().copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: const Color.fromARGB(255, 35, 141, 123))),
+                    imageLocalPath == null
+                        ? const Icon(
+                            Icons.photo,
+                            size: 60,
+                          )
+                        : WidgetZoom(
+                            heroAnimationTag: 'postImage',
+                            zoomWidget: Image.file(
+                              File(imageLocalPath!),
+                              height: 60,
+                            ),
+                          ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextButton.icon(
+                          onPressed: () {
+                            getImage(ImageSource.camera);
+                          },
+                          icon: const Icon(Icons.photo_camera,
+                              color: Color.fromARGB(255, 12, 87, 105)),
+                          label: const Text('Capture',
+                              style: TextStyle(
+                                  color: Color.fromARGB(255, 12, 87, 105))),
+                        ),
+                        TextButton.icon(
+                          onPressed: () {
+                            getImage(ImageSource.gallery);
+                          },
+                          icon: const Icon(Icons.photo_library_rounded,
+                              color: Color.fromARGB(255, 12, 87, 105)),
+                          label: const Text(
+                            'Gallery',
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 12, 87, 105)),
                           ),
                         ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextButton.icon(
-                        onPressed: () {
-                          getImage(ImageSource.camera);
-                        },
-                        icon: const Icon(Icons.photo_camera,
-                            color: Color.fromARGB(255, 12, 87, 105)),
-                        label: const Text('Capture',
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 12, 87, 105))),
-                      ),
-                      TextButton.icon(
-                        onPressed: () {
-                          getImage(ImageSource.gallery);
-                        },
-                        icon: const Icon(Icons.photo_library_rounded,
-                            color: Color.fromARGB(255, 12, 87, 105)),
-                        label: const Text(
-                          'Gallery',
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 12, 87, 105)),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  Material(
-                    borderRadius: BorderRadius.circular(24.0),
-                    child: InkWell(
-                      onTap: () => submitPost(context),
-                      customBorder: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24.0)),
-                      child: Ink(
-                        width: MediaQuery.of(context).size.width * 0.4,
-                        padding: const EdgeInsets.only(
-                            top: 12.0, bottom: 12.0, left: 18.0, right: 18.0),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24.0),
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color.fromARGB(255, 111, 199, 158),
-                                Color.fromARGB(255, 101, 182, 144),
-                                // Colors.lightBlueAccent[500]!,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            )),
-                        child: isLoading
-                            ? const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'Submitting. Please wait...',
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+                    Material(
+                      borderRadius: BorderRadius.circular(24.0),
+                      child: InkWell(
+                        onTap: () => submitPost(context),
+                        customBorder: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24.0)),
+                        child: Ink(
+                          width: MediaQuery.of(context).size.width * 0.4,
+                          padding: const EdgeInsets.only(
+                              top: 12.0, bottom: 12.0, left: 18.0, right: 18.0),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24.0),
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color.fromARGB(255, 111, 199, 158),
+                                  Color.fromARGB(255, 101, 182, 144),
+                                  // Colors.lightBlueAccent[500]!,
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )),
+                          child: isLoading
+                              ? const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Submitting. Please wait...',
+                                      style: TextStyle(
+                                        color: Color.fromARGB(255, 100, 52, 34),
+                                      ),
+                                    ),
+                                    SizedBox(width: 5),
+                                    SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            Colors.white,
+                                          ),
+                                          backgroundColor:
+                                              Colors.lightBlueAccent,
+                                          strokeWidth: 3,
+                                        ))
+                                  ],
+                                )
+                              : const Center(
+                                  child: Text(
+                                    'Submit Post',
                                     style: TextStyle(
                                       color: Color.fromARGB(255, 100, 52, 34),
                                     ),
                                   ),
-                                  SizedBox(width: 5),
-                                  SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                          Colors.white,
-                                        ),
-                                        backgroundColor: Colors.lightBlueAccent,
-                                        strokeWidth: 3,
-                                      ))
-                                ],
-                              )
-                            : const Center(
-                                child: Text(
-                                  'Submit Post',
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 100, 52, 34),
-                                  ),
                                 ),
-                              ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           )),

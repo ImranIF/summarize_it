@@ -177,26 +177,33 @@ class CustomTextFieldDescription extends StatelessWidget {
   final bool obscureText;
   final IconData prefixIcon;
   final int maxLines;
+  final Function(String)? onChanged;
   bool readonly = false;
   bool hasLabel;
   bool hasPrefixIcon;
+  bool hasOnChanged;
 
-  CustomTextFieldDescription(this.readonly,
-      {super.key,
-      this.labelText = "",
-      this.prefixIcon = Icons.description,
-      required this.controller,
-      required this.maxLines,
-      required this.hintText,
-      required this.obscureText,
-      required this.hasLabel,
-      required this.hasPrefixIcon});
+  CustomTextFieldDescription(
+    this.readonly, {
+    super.key,
+    this.labelText = "",
+    this.prefixIcon = Icons.description,
+    this.onChanged = null,
+    required this.controller,
+    required this.maxLines,
+    required this.hintText,
+    required this.obscureText,
+    required this.hasLabel,
+    required this.hasPrefixIcon,
+    required this.hasOnChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
       maxLines: maxLines,
+      onChanged: onChanged,
       obscureText: obscureText,
       style: const TextStyle(
         color: Colors.black,

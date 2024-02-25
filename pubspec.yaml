@@ -55,6 +55,7 @@ dependencies:
   timeago: ^3.6.1
   geolocator:
   url_launcher: 
+  youtube_player_flutter:
 
 
 dev_dependencies:

@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:summarize_it/models/textsummarizationmodel.dart';
+import 'package:summarize_it/pages/help.dart';
 
 class Summarizer extends StatefulWidget {
   Summarizer({super.key});
@@ -44,6 +45,20 @@ class _SummarizerState extends State<Summarizer> {
                   child: Column(
                       // crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: FloatingActionButton.small(
+                              backgroundColor:
+                                  Color.fromARGB(255, 162, 236, 169),
+                              onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Help())),
+                              child: const Icon(
+                                Icons.help_outline_outlined,
+                                color: Color.fromARGB(255, 76, 175, 162),
+                              )),
+                        ),
                         Align(
                           alignment: Alignment.center,
                           child: Text(
