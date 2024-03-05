@@ -22,7 +22,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Summarize It',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 70, 141, 123)),
         useMaterial3: true,
       ),
       home: const SplashScreen(),
