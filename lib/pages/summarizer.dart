@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
@@ -166,29 +167,37 @@ class _SummarizerState extends State<Summarizer> {
                         Consumer<TextSummarizationModel>(
                           builder: (context, model, child) {
                             return model.outputText.isNotEmpty
-                                ? Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      model.outputText,
-                                      style: GoogleFonts.georama(
-                                        fontSize: 14,
-                                        color: const Color.fromARGB(
-                                            255, 70, 69, 69),
-                                      ),
-                                    )
-                                    // child: Text(
-                                    // model.outputText,
-                                    // style: TextStyle(
-                                    //   color: Color.fromARGB(255, 100, 52, 34),
-                                    //   fontSize: 14,
-                                    //   fontWeight: FontWeight.bold,
-                                    // ),
-                                    // ),
-                                    )
+                                ? GestureDetector(
+                                    onTap: () async {
+                                      await Clipboard.setData(
+                                        ClipboardData(text: model.outputText),
+                                      );
+                                    },
+                                    child: Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          model.outputText,
+                                          style: GoogleFonts.georama(
+                                            fontSize: 14,
+                                            color: const Color.fromARGB(
+                                                255, 70, 69, 69),
+                                          ),
+                                        )
+                                        // child: Text(
+                                        // model.outputText,
+                                        // style: TextStyle(
+                                        //   color: Color.fromARGB(255, 100, 52, 34),
+                                        //   fontSize: 14,
+                                        //   fontWeight: FontWeight.bold,
+                                        // ),
+                                        // ),
+                                        ),
+                                  )
                                 : const SizedBox();
                           },
                         )
