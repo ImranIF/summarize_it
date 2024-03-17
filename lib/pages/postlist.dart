@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:summarize_it/components/customtextfield.dart';
+import 'package:summarize_it/pages/commentscreen.dart';
 import 'package:widget_zoom/widget_zoom.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -304,7 +305,19 @@ class PostListState extends State<PostList> {
                                                         ['likeCount']
                                                     .toString()),
                                                 IconButton(
-                                                    onPressed: () {},
+                                                    onPressed: () {
+                                                      print(
+                                                          '-----------------${userPosts[index]['postId']}');
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) => CommentScreen(
+                                                                  postId: userPosts[
+                                                                          index]
+                                                                      ['postId']
+                                                                  // post: userPosts[index],
+                                                                  )));
+                                                    },
                                                     icon: const Icon(
                                                       Icons.comment,
                                                       size: 10,

@@ -16,6 +16,7 @@ import 'package:summarize_it/authentication/auth_service.dart';
 import 'package:summarize_it/authentication/loginpage.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/customtextfield.dart';
+import 'package:summarize_it/models/usermodel.dart';
 import 'package:widget_zoom/widget_zoom.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -112,23 +113,40 @@ class _RegisterPageState extends State<RegisterPage> {
     print('-----------------------------------------baka------------------');
 
     // add user details
-    Map<String, dynamic> userData = {
-      'fullName': fullNameController.text.trim(),
-      'userName': userNameController.text.trim(),
-      'address': addressController.text.trim(),
-      'dateOfBirth': dob,
-      'email': emailController.text.trim(),
-      'password': passwordController.text.trim(),
-      'imageURL': imgUrl,
-      'postCount': 0,
-    };
+
+    UserModel userModel = UserModel(
+      fullName: fullNameController.text.trim(),
+      userName: userNameController.text.trim(),
+      address: addressController.text.trim(),
+      dateOfBirth: dob,
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+      imageURL: imgUrl,
+      postCount: 0,
+    );
 
     print('-----------------------------------------sussy------------');
 
     await FirebaseFirestore.instance
         .collection('users')
         .doc(user.email)
-        .set(userData);
+        .set(userModel.toMap());
+
+    // Map<String, dynamic> userData = {
+    //   'fullName': fullNameController.text.trim(),
+    //   'userName': userNameController.text.trim(),
+    //   'address': addressController.text.trim(),
+    //   'dateOfBirth': dob,
+    //   'email': emailController.text.trim(),
+    //   'password': passwordController.text.trim(),
+    //   'imageURL': imgUrl,
+    //   'postCount': 0,
+    // };
+
+    // await FirebaseFirestore.instance
+    //     .collection('users')
+    //     .doc(user.email)
+    //     .set(userData);
 
     Navigator.pop(context);
 
@@ -188,14 +206,14 @@ class _RegisterPageState extends State<RegisterPage> {
               shaderCallback: (rect) {
                 return RadialGradient(
                   radius: value * 5,
-                  colors: [
+                  colors: const [
                     Colors.white,
                     Colors.white,
                     Colors.transparent,
                     Colors.transparent
                   ],
                   stops: [0.0, 0.45, 0.60, 1.0],
-                  center: FractionalOffset(0.50, 0.75),
+                  center: const FractionalOffset(0.50, 0.75),
                 ).createShader(rect);
               },
               child: child,
