@@ -1,0 +1,162 @@
+// Variables
+$primary-color: #A2ECA9;
+$secondary-color: #5CAFAA;
+$font-family: 'Cormorant Garamond', serif;
+$text-size: 16;
+$sz:40px;
+$text-color: #38775d;
+
+@mixin linear-gradient-bg{
+    background: linear-gradient(to bottom, $primary-color, $secondary-color);
+}
+
+// Global styles
+body {
+    @include linear-gradient-bg;
+    font-family: \$font-family;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.about-us{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .title {
+      font-size: $text-size * 1.5;
+      color: $text-color;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .h1 {
+      font-size: $text-size * 1.5;
+      color: $primary-color;
+      font-weight: bold;
+      font-family: 'Georama', sans-serif;
+      letter-spacing: 10px; 
+      text-align: center;
+    }
+}
+
+.heading{
+  font-size: $text-size * 3.5;
+  color: $text-color;
+  font-weight: bold;
+  font-family: 'Georama', sans-serif;
+  letter-spacing: 10px;
+}
+  
+.about-us-description {
+  font-size: $text-size;
+  color: $text-color;
+}
+
+.about-us-team-member {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.about-us-team-member .name {
+  font-size: $text-size * 1.125;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.about-us-team-member .position {
+  font-size: $text-size;
+  color: $secondary-color;
+}
+
+.container {
+  font-size: \$sz;
+  background-color: \$primaryColor;
+  color: #ffffff;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  height: 30vh;
+  border-radius: 60px 0 60px 0;
+}
+
+.highlight {
+  font-weight: bold;
+  position: absolute;
+  top: 60%;
+  left: -200%;
+  transform: translate(-50%, -50%);
+  animation: slideText 8s infinite linear;
+}
+
+.static-text {
+  margin-right: 25px; /* Add margin between static text and moving text */
+}
+
+@keyframes slideText {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+  
+//   .about-us-container {
+//     background-color: $container-background-color;
+//     padding: $container-padding;
+//   }
+
+
+// .container {
+//     max-width: 1200px;
+//     margin: 0 auto;
+//     padding: 20px;
+// }
+
+// About Us section
+// .about-us {
+//     h1 {
+//         color: $primary-color;
+//         font-size: 24px;
+//         font-weight: bold;
+//         margin-bottom: 20px;
+//     }
+
+//     p {
+//         font-size: 16px;
+//         line-height: 1.5;
+//         margin-bottom: 10px;
+//     }
+
+//     .team-members {
+//         display: flex;
+//         flex-wrap: wrap;
+//         justify-content: space-between;
+
+//         .member {
+//             width: calc(33.33% - 20px);
+//             margin-bottom: 20px;
+
+//             img {
+//                 width: 100%;
+//                 height: auto;
+//                 border-radius: 50%;
+//                 margin-bottom: 10px;
+//             }
+
+//             h3 {
+//                 font-size: 18px;
+//                 font-weight: bold;
+//                 margin-bottom: 5px;
+//             }
+
+//             p {
+//                 font-size: 14px;
+//                 color: $secondary-color;
+//             }
+//         }
+//     }
+// }

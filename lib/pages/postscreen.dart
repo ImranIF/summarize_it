@@ -235,7 +235,7 @@ class _PostScreenState extends State<PostScreen> {
         .where('email', isEqualTo: userEmail)
         .get();
     final data = query.docs[0].data();
-    print(data);
+    print('user: $data');
 
     // insert post
     Map<String, dynamic> postData = {
@@ -261,6 +261,10 @@ class _PostScreenState extends State<PostScreen> {
     //     .where('email', isEqualTo: userEmail)
     //     .snapshots());
 
+    // update user's postcount
+    await FirebaseFirestore.instance.collection('users').doc(userEmail).update({
+      'postCount': data['postCount'] + 1,
+    });
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

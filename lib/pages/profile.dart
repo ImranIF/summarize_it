@@ -480,15 +480,6 @@ class _ProfileState extends State<Profile> {
                                                         'likeCount': FieldValue
                                                             .increment(1),
                                                       });
-                                                      // FirebaseFirestore.instance
-                                                      //     .collection('posts')
-                                                      //     .doc('postId')
-                                                      //     .update({
-                                                      //   'likes': FieldValue
-                                                      //       .arrayRemove(
-                                                      //           [user.email]),
-                                                      // }
-                                                      // );
                                                     } else {
                                                       // userPosts[index]['likes']
                                                       //     .remove(user.email);

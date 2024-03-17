@@ -1,11 +1,15 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:summarize_it/models/usermodel.dart';
+import 'package:summarize_it/pages/aboutus.dart';
 import 'package:summarize_it/pages/homepage.dart';
 import 'package:summarize_it/pages/postlist.dart';
 import 'package:summarize_it/pages/postscreen.dart';
 import 'package:summarize_it/pages/profile.dart';
 import 'package:summarize_it/pages/summarizer.dart';
+import 'package:summarize_it/provider/userprovider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,9 +26,23 @@ class _HomeScreenState extends State<HomeScreen> {
     const PostScreen(),
     const PostList(),
   ];
-  final user = FirebaseAuth.instance.currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    getUser();
+  }
+
+  getUser() async {
+    UserProvider userProvider = Provider.of(context,
+        listen:
+            false); // restrict continuous listening of the value provider by the provider to false
+    await userProvider?.getUserInfo();
+  }
+
   @override
   Widget build(BuildContext context) {
+    UserModel? userModel = Provider.of<UserProvider>(context).userModel;
     return Scaffold(
         body: pageOptions[selectedPage],
         bottomNavigationBar: ConvexAppBar.badge(
@@ -39,6 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
               TabItem(icon: Icons.post_add, title: 'Post List'),
             ],
             onTap: (index) => setState(() {
+                  print(
+                      '----------------userModel: ${userModel}--------------------');
                   // showDialog(
                   //   context: context,
                   //   builder: (context) => const Center(

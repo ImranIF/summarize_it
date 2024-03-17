@@ -5,6 +5,7 @@ import 'package:lottie/lottie.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:summarize_it/authentication/auth_page.dart';
 import 'package:summarize_it/authentication/loginpage.dart';
+import 'package:summarize_it/pages/aboutus.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -53,8 +54,8 @@ class _SplashScreenState extends State<SplashScreen>
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color.fromARGB(255, 162, 236, 169),
-                Color.fromARGB(255, 92, 175, 170),
+                Color.fromRGBO(162, 236, 169, 1),
+                Color.fromRGBO(92, 175, 170, 1),
                 // Color.fromARGB(10, 52, 59, 53),
               ],
               begin: Alignment.topCenter,
@@ -78,16 +79,24 @@ class _SplashScreenState extends State<SplashScreen>
                 controller: _animationController,
               ),
               const SizedBox(height: 20),
-              RichText(
-                  text: TextSpan(
-                text: 'Summarize It',
-                style: GoogleFonts.georama(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  letterSpacing: 2.5,
-                ),
-              )),
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).push(
+                      PageRouteBuilder(pageBuilder: (context, animation, _) {
+                    return AboutUs();
+                  }));
+                },
+                child: RichText(
+                    text: TextSpan(
+                  text: 'Summarize It',
+                  style: GoogleFonts.georama(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    letterSpacing: 2.5,
+                  ),
+                )),
+              ),
               const SizedBox(height: 15),
               // divider
               Image.asset('assets/line.png',
