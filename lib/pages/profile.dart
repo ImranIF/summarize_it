@@ -10,6 +10,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/textbox.dart';
+import 'package:summarize_it/pages/graphql.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:widget_zoom/widget_zoom.dart';
@@ -232,6 +233,61 @@ class _ProfileState extends State<Profile> {
                               const SizedBox(height: 10),
 
                               Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Material(
+                                    borderRadius: BorderRadius.circular(24.0),
+                                    child: InkWell(
+                                      onTap: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const GraphQL())),
+                                      customBorder: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0)),
+                                      child: Ink(
+                                          padding: const EdgeInsets.only(
+                                              top: 10.0,
+                                              bottom: 10.0,
+                                              left: 16.0,
+                                              right: 16.0),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(24.0),
+                                              gradient: const LinearGradient(
+                                                colors: [
+                                                  Color.fromARGB(
+                                                      255, 111, 199, 158),
+                                                  Color.fromARGB(
+                                                      255, 101, 182, 144),
+                                                  // Colors.lightBlueAccent[500]!,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              )),
+                                          child: const Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                'All User Info',
+                                                style: TextStyle(
+                                                  color: Color.fromARGB(
+                                                      255, 100, 52, 34),
+                                                ),
+                                              ),
+                                            ],
+                                          )),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 10),
+
+                              Column(
                                 children: [
                                   Image.asset('assets/line.png',
                                       width: MediaQuery.of(context).size.width *
@@ -263,15 +319,22 @@ class _ProfileState extends State<Profile> {
                               const SizedBox(height: 10),
 
                               //user posts count
-                              Padding(
-                                padding: EdgeInsets.only(left: 25),
-                                child: Text('My Posts',
-                                    style: GoogleFonts.cormorantSc(
-                                      fontSize: 16,
-                                      color: Color.fromARGB(255, 28, 116, 101),
-                                      // ,
-                                      fontWeight: FontWeight.bold,
-                                    )),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 25),
+                                    child: Text('My Posts',
+                                        style: GoogleFonts.cormorantSc(
+                                          fontSize: 16,
+                                          color:
+                                              Color.fromARGB(255, 28, 116, 101),
+                                          // ,
+                                          fontWeight: FontWeight.bold,
+                                        )),
+                                  ),
+                                ],
                               ),
 
                               //user posts

@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:summarize_it/models/usermodel.dart';
 import 'package:summarize_it/pages/aboutus.dart';
+import 'package:summarize_it/pages/graphql.dart';
 import 'package:summarize_it/pages/homepage.dart';
 import 'package:summarize_it/pages/postlist.dart';
 import 'package:summarize_it/pages/postscreen.dart';
@@ -46,12 +48,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
         body: pageOptions[selectedPage],
         bottomNavigationBar: ConvexAppBar.badge(
-            const {
+            {
               // 3: '10+', // badge value
             },
             backgroundColor: const Color.fromARGB(255, 60, 139, 136),
+            style: TabStyle.reactCircle,
             items: const [
-              TabItem(icon: Icons.person, title: 'Profile'),
+              TabItem(
+                icon: Icons.person,
+                title: 'Profile',
+              ),
               TabItem(icon: Icons.summarize, title: 'Summarizer'),
               TabItem(icon: Icons.add, title: 'Create Post'),
               TabItem(icon: Icons.post_add, title: 'Post List'),
