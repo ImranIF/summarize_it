@@ -292,8 +292,7 @@ class PostListState extends State<PostList> {
                                                       });
                                                     },
                                                     icon: Icon(
-                                                        Icons
-                                                            .favorite_border_outlined,
+                                                        Icons.favorite_rounded,
                                                         color: userPosts[index]
                                                                     ['likes']
                                                                 .contains(

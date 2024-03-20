@@ -1,23 +1,3 @@
-// import 'dart:io';
-
-// import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:sass/sass.dart' as sass;
-
-// class AboutUs extends StatelessWidget {
-//   const AboutUs({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final css = sass
-//         .compileToResult(File('lib/styles/aboutus.scss').readAsStringSync());
-//     final htmlContent = File('lib/pages/aboutus.html').readAsStringSync();
-//     return Scaffold(
-
-//     )
-//   }
-// }
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -25,6 +5,7 @@ import 'package:sass/sass.dart' as sass;
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class AboutUs extends StatelessWidget {
+  final int rating = 5;
   final String sassCode = '''
       <html>
       <head>

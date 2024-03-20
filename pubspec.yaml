@@ -59,6 +59,8 @@ dependencies:
   sass: ^1.72.0
   flutter_inappwebview: ^6.0.0
   graphql_flutter: ^5.1.2
+  pdf: ^3.10.8
+  flutter_rating_bar: 
 
 
 dev_dependencies:
