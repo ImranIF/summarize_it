@@ -244,8 +244,6 @@ class _SummarizerState extends State<Summarizer> {
       if (responseData is List<dynamic> && responseData.isNotEmpty) {
         final Map<String, dynamic> summaryData = responseData[0];
 
-        // Navigator.pop(context);
-
         if (summaryData.containsKey("summary_text")) {
           model.setOutputText(summaryData["summary_text"] ?? "");
         } else {

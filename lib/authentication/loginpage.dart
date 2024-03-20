@@ -12,6 +12,7 @@ import 'package:summarize_it/authentication/auth_service.dart';
 import 'package:summarize_it/authentication/registerpage.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/customtextfield.dart';
+import 'package:summarize_it/components/sessionmanager.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -34,6 +35,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         isLoading = true;
       });
+      await SessionManager.init();
 
       //try sign in
       try {
@@ -74,6 +76,7 @@ class _LoginPageState extends State<LoginPage> {
           setState(() {
             isLoading = false;
           });
+          await SessionManager.logIn();
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -169,6 +172,13 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    emailController.dispose();
+    passwordController.dispose();
   }
 
   @override

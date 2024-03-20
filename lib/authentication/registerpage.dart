@@ -35,6 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String? imageLocalPath;
   String checkName = '';
   bool uniqueUser = false;
+  bool validEmail = false;
   XFile? file;
   late String imgUrl;
   final TextEditingController userNameController = TextEditingController();
@@ -420,12 +421,27 @@ class _RegisterPageState extends State<RegisterPage> {
                   const SizedBox(height: 25),
                   SizedBox(
                       width: MediaQuery.of(context).size.width * 0.75,
-                      child: CustomTextField(false,
-                          controller: emailController,
+                      child: CustomTextFieldWithCheck(false,
+                          controller: emailController, onChanged: (value) {
+                        checkEmailValidity(value);
+                      },
                           hintText: 'imranfarid@yandex.com',
                           obscureText: false,
                           labelText: 'Email',
                           prefixIcon: Icons.email_rounded)),
+                  if (emailController.text.isNotEmpty)
+                    (validEmail)
+                        ? const SizedBox()
+                        : const SizedBox(
+                            height: 20,
+                            child: Text(
+                              '*Invalid Email. Please enter a valid email.',
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
                   const SizedBox(height: 25),
                   SizedBox(
                       width: MediaQuery.of(context).size.width * 0.75,
@@ -658,5 +674,13 @@ class _RegisterPageState extends State<RegisterPage> {
     } else {
       print(result.data);
     }
+  }
+
+  void checkEmailValidity(String value) {
+    setState(() {
+      validEmail = RegExp(
+              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+          .hasMatch(value);
+    });
   }
 }
