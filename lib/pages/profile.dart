@@ -10,7 +10,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/textbox.dart';
+import 'package:summarize_it/pages/commentscreen.dart';
 import 'package:summarize_it/pages/graphql.dart';
+import 'package:summarize_it/pages/rating.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:widget_zoom/widget_zoom.dart';
@@ -131,14 +133,33 @@ class _ProfileState extends State<Profile> {
                                       ))),
                       ),
                       const Spacer(flex: 1),
-                      Container(
-                        margin: const EdgeInsets.only(right: 20, top: 20),
-                        alignment: Alignment.topRight,
-                        child: IconButton(
-                            onPressed: signUserOut,
-                            icon: Icon(Icons.logout),
-                            color: Colors.black,
-                            iconSize: 30),
+                      Row(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 20),
+                            child: InkWell(
+                                onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const AppRating())),
+                                child: Ink(
+                                  child: const Icon(Icons.stars_sharp,
+                                      size: 25,
+                                      color: Color.fromARGB(255, 55, 102, 84)),
+                                )),
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
+                            margin: const EdgeInsets.only(right: 20, top: 20),
+                            alignment: Alignment.topRight,
+                            child: IconButton(
+                                onPressed: signUserOut,
+                                icon: const Icon(Icons.logout),
+                                color: const Color.fromARGB(255, 55, 102, 84),
+                                iconSize: 30),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -569,8 +590,7 @@ class _ProfileState extends State<Profile> {
                                                   });
                                                 },
                                                 icon: Icon(
-                                                    Icons
-                                                        .favorite_border_outlined,
+                                                    Icons.favorite_rounded,
                                                     color: userPosts[index]
                                                                 ['likes']
                                                             .contains(
@@ -581,7 +601,20 @@ class _ProfileState extends State<Profile> {
                                             Text(userPosts[index]['likeCount']
                                                 .toString()),
                                             IconButton(
-                                                onPressed: () {},
+                                                onPressed: () {
+                                                  print(
+                                                      '-----------------${userPosts[index]['postId']}');
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              CommentScreen(
+                                                                  postId: userPosts[
+                                                                          index]
+                                                                      ['postId']
+                                                                  // post: userPosts[index],
+                                                                  )));
+                                                },
                                                 icon: const Icon(
                                                   Icons.comment,
                                                   size: 10,

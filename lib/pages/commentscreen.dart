@@ -71,78 +71,7 @@ class _CommentScreenState extends State<CommentScreen> {
                     ),
                   ),
                   // margin: const EdgeInsets.only(left: 10.0, right: 10.0),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          margin: const EdgeInsets.only(left: 5.0, right: 5.0),
-                          child: userImageURL == null
-                              ? CircleAvatar(
-                                  radius: 20,
-                                  backgroundImage: Image.asset(
-                                    'assets/placeholder.png',
-                                    height: 20,
-                                    width: 20,
-                                    fit: BoxFit.cover,
-                                  ).image,
-                                )
-                              : CircleAvatar(
-                                  radius: 20,
-                                  backgroundImage: Image.network(
-                                    userModel!.imageURL,
-                                    height: 20,
-                                    width: 20,
-                                    fit: BoxFit.cover,
-                                  ).image,
-                                ),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.7,
-                          child: CustomTextFieldDescription(false,
-                              controller: commentController,
-                              maxLines: 1,
-                              hintText: 'Add a comment...',
-                              obscureText: false,
-                              hasLabel: false,
-                              hasPrefixIcon: false,
-                              hasOnChanged: false),
-                        ),
-                        // Container(
-                        //   width: 300.0,
-                        //   height: 50.0,
-                        //   child: TextField(
-                        //     decoration: InputDecoration(
-                        //       hintText: 'Add a comment',
-                        //       hintStyle: TextStyle(
-                        //         color: Colors.white,
-                        //       ),
-                        //       enabledBorder: OutlineInputBorder(
-                        //         borderSide: BorderSide(
-                        //           color: Colors.white,
-                        //         ),
-                        //       ),
-                        //       focusedBorder: OutlineInputBorder(
-                        //         borderSide: BorderSide(
-                        //           color: Colors.white,
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.send,
-                            color: Color.fromARGB(255, 52, 94, 74),
-                          ),
-                          onPressed: () {
-                            postComment();
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+                  commentBar(context),
                   Padding(
                     padding: const EdgeInsets.only(top: 20.0),
                     child: StreamBuilder<QuerySnapshot>(
@@ -178,7 +107,7 @@ class _CommentScreenState extends State<CommentScreen> {
                           final documents = snapshot.data!.docs;
                           return ListView.builder(
                               shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
+                              physics: const NeverScrollableScrollPhysics(),
                               itemCount: documents.length,
                               itemBuilder: (context, index) {
                                 print(
@@ -281,23 +210,83 @@ class _CommentScreenState extends State<CommentScreen> {
                                                                       BorderRadius
                                                                           .circular(
                                                                               20)),
-                                                          onTap: () {},
-                                                          child: const Icon(
+                                                          onTap: () {
+                                                            // setState(() {
+                                                            if (documents[index]
+                                                                        [
+                                                                        'likes']
+                                                                    .contains(
+                                                                        userModel!
+                                                                            .email) !=
+                                                                true) {
+                                                              documents[index]
+                                                                  .reference
+                                                                  .update({
+                                                                'likes': FieldValue
+                                                                    .arrayUnion([
+                                                                  userModel!
+                                                                      .email
+                                                                ]),
+                                                                'likeCount':
+                                                                    FieldValue
+                                                                        .increment(
+                                                                            1),
+                                                              });
+                                                            } else {
+                                                              print(
+                                                                  'ehe---------------?${documents[index]['likes']}');
+                                                              documents[index]
+                                                                  .reference
+                                                                  .update({
+                                                                'likes': FieldValue
+                                                                    .arrayRemove([
+                                                                  userModel!
+                                                                      .email
+                                                                ]),
+                                                                'likeCount':
+                                                                    FieldValue
+                                                                        .increment(
+                                                                            -1)
+                                                              });
+                                                            }
+                                                            // });
+                                                          },
+                                                          child: Icon(
                                                             Icons
                                                                 .thumb_up_sharp,
                                                             size: 15,
-                                                            color:
-                                                                Color.fromARGB(
+                                                            color: documents[
+                                                                            index]
+                                                                        [
+                                                                        'likes']
+                                                                    .contains(
+                                                                        userModel!
+                                                                            .email)
+                                                                ? Colors.red
+                                                                : const Color
+                                                                    .fromARGB(
                                                                     255,
-                                                                    35,
-                                                                    141,
-                                                                    123),
+                                                                    27,
+                                                                    110,
+                                                                    97),
                                                           ),
                                                         ),
                                                       ),
                                                       const SizedBox(
                                                         width: 10,
                                                       ),
+                                                      Text(
+                                                          documents[index]
+                                                                  ['likeCount']
+                                                              .toString(),
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          27,
+                                                                          110,
+                                                                          97))),
                                                       if (documents[index]
                                                               ['username'] ==
                                                           userModel!.userName)
@@ -373,6 +362,81 @@ class _CommentScreenState extends State<CommentScreen> {
                 ])))));
   }
 
+  Container commentBar(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(top: 20.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            margin: const EdgeInsets.only(left: 5.0, right: 5.0),
+            child: userImageURL == null
+                ? CircleAvatar(
+                    radius: 20,
+                    backgroundImage: Image.asset(
+                      'assets/placeholder.png',
+                      height: 20,
+                      width: 20,
+                      fit: BoxFit.cover,
+                    ).image,
+                  )
+                : CircleAvatar(
+                    radius: 20,
+                    backgroundImage: Image.network(
+                      userModel!.imageURL,
+                      height: 20,
+                      width: 20,
+                      fit: BoxFit.cover,
+                    ).image,
+                  ),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.7,
+            child: CustomTextFieldDescription(false,
+                controller: commentController,
+                maxLines: 1,
+                hintText: 'Add a comment...',
+                obscureText: false,
+                hasLabel: false,
+                hasPrefixIcon: false,
+                hasOnChanged: false),
+          ),
+          // Container(
+          //   width: 300.0,
+          //   height: 50.0,
+          //   child: TextField(
+          //     decoration: InputDecoration(
+          //       hintText: 'Add a comment',
+          //       hintStyle: TextStyle(
+          //         color: Colors.white,
+          //       ),
+          //       enabledBorder: OutlineInputBorder(
+          //         borderSide: BorderSide(
+          //           color: Colors.white,
+          //         ),
+          //       ),
+          //       focusedBorder: OutlineInputBorder(
+          //         borderSide: BorderSide(
+          //           color: Colors.white,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          IconButton(
+            icon: const Icon(
+              Icons.send,
+              color: Color.fromARGB(255, 52, 94, 74),
+            ),
+            onPressed: () {
+              postComment();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> displayDeleteDialog(dynamic document) async {
     return await showDialog(
       context: context,
@@ -418,6 +482,8 @@ class _CommentScreenState extends State<CommentScreen> {
           'username': userModel!.userName,
           'imageURL': userModel!.imageURL,
           'timestamp': DateTime.now(),
+          'likes': [],
+          'likeCount': 0,
         };
         commentController.clear();
         final commentRef = await FirebaseFirestore.instance

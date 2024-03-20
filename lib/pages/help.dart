@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:summarize_it/components/custombutton.dart';
+import 'package:summarize_it/components/pdfapi.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:pdf/pdf.dart';
 
 class Help extends StatefulWidget {
   const Help({super.key});
@@ -120,6 +123,57 @@ class _HelpState extends State<Help> {
                         ),
                       ),
                       const SizedBox(
+                        height: 15.0,
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Material(
+                            borderRadius: BorderRadius.circular(24.0),
+                            child: InkWell(
+                              onTap: () async {
+                                final pdfFile =
+                                    await PDFApi.generateCenteredText(
+                                        'Sample Text');
+                              },
+                              customBorder: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0)),
+                              child: Ink(
+                                  padding: const EdgeInsets.only(
+                                      top: 12.0,
+                                      bottom: 12.0,
+                                      left: 19.0,
+                                      right: 19.0),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(24.0),
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color.fromARGB(255, 111, 199, 158),
+                                          Color.fromARGB(255, 101, 182, 144),
+                                          // Colors.lightBlueAccent[500]!,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Generate Crystal Report',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color:
+                                              Color.fromARGB(255, 34, 79, 100),
+                                        ),
+                                      ),
+                                    ],
+                                  )),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
                         height: 15,
                       ),
                       Text(
@@ -166,7 +220,8 @@ class _HelpState extends State<Help> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 15.0),
+                      if (faqCategory != null && faqCategory!.isNotEmpty)
+                        const SizedBox(height: 15.0),
                       if (faqCategory != null && faqCategory!.isNotEmpty) ...[
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -200,7 +255,8 @@ class _HelpState extends State<Help> {
                           ],
                         ),
                       ],
-                      const SizedBox(height: 15.0),
+                      if (questiontype != null && questiontype!.isNotEmpty)
+                        const SizedBox(height: 15.0),
                       if (questiontype != null && questiontype!.isNotEmpty) ...[
                         Container(
                           padding: const EdgeInsets.all(10),

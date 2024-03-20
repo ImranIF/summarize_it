@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gradient_icon/gradient_icon.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -131,6 +132,8 @@ class _RegisterPageState extends State<RegisterPage> {
         .collection('users')
         .doc(user.email)
         .set(userModel.toMap());
+
+    insertIntoGraphql(userModel);
 
     // Map<String, dynamic> userData = {
     //   'fullName': fullNameController.text.trim(),
@@ -598,6 +601,62 @@ class _RegisterPageState extends State<RegisterPage> {
         imageLocalPath = imageFile.path;
         file = imageFile;
       });
+    }
+  }
+
+  Future<void> insertIntoGraphql(UserModel newModel) async {
+    const String hasuraAdminSecret =
+        '0r71PA70WMiMU4avCTOEGBXIAe6drGVmqGzctkffKAWO3cbqrBAsVq5ihjaaU1y8';
+    const String graphQLEndpoint = 'https://summarize-it.hasura.app/v1/graphql';
+    final HttpLink httpLink = HttpLink(
+      graphQLEndpoint,
+      defaultHeaders: {
+        'content-type': 'application/json',
+        'x-hasura-admin-secret': hasuraAdminSecret,
+      },
+    ); // point to endpoint of graphql server
+
+    final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
+      GraphQLClient(
+        link: httpLink as Link,
+        cache: GraphQLCache(store: InMemoryStore()),
+      ),
+    );
+
+    const String insertUser = """
+      mutation InsertUser(\$email: String!, \$password: String!, \$fullName: String!, \$imageURL: String, \$address: String, \$postCount: Int, \$userName: String!) {
+        insert_users(objects: [{email: \$email, password: \$password, fullName: \$fullName, imageURL: \$imageURL, address: \$address, postCount: \$postCount, userName: \$userName}]) {
+          returning {
+            email
+            password
+            fullName
+            imageURL
+            address
+            postCount
+            userName
+          }
+        }
+      }
+      """;
+
+    final Map<String, dynamic> map = {
+      'email': newModel.email,
+      'password': newModel.password,
+      'fullName': newModel.fullName,
+      'imageURL': newModel.imageURL,
+      'address': newModel.address,
+      'postCount': newModel.postCount,
+      'userName': newModel.userName,
+    };
+    final MutationOptions options = MutationOptions(
+      document: gql(insertUser),
+      variables: map,
+    );
+    final QueryResult result = await client.value.mutate(options);
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else {
+      print(result.data);
     }
   }
 }
