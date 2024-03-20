@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:summarize_it/components/custombutton.dart';
-import 'package:summarize_it/components/pdfapi.dart';
+import 'package:summarize_it/pages/report.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:pdf/pdf.dart';
 
 class Help extends StatefulWidget {
   const Help({super.key});
@@ -131,10 +130,9 @@ class _HelpState extends State<Help> {
                           Material(
                             borderRadius: BorderRadius.circular(24.0),
                             child: InkWell(
-                              onTap: () async {
-                                final pdfFile =
-                                    await PDFApi.generateCenteredText(
-                                        'Sample Text');
+                              onTap: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => Report()));
                               },
                               customBorder: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20.0)),

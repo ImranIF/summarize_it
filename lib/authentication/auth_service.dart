@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:summarize_it/components/sessionmanager.dart';
 
 class AuthService {
   signInWithGoogle() async {
@@ -58,6 +59,7 @@ class AuthService {
             });
           }
         });
+        SessionManager.logIn();
         return userCredential;
       }
     } on Exception catch (e) {

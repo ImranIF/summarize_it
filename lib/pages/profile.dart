@@ -9,10 +9,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:summarize_it/components/custombutton.dart';
+import 'package:summarize_it/components/sessionmanager.dart';
 import 'package:summarize_it/components/textbox.dart';
-import 'package:summarize_it/pages/commentscreen.dart';
+
 import 'package:summarize_it/pages/graphql.dart';
 import 'package:summarize_it/pages/rating.dart';
+import 'package:summarize_it/screen/commentscreen.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:widget_zoom/widget_zoom.dart';
@@ -30,9 +32,10 @@ class _ProfileState extends State<Profile> {
   void signUserOut() async {
     // print('---------------------------${user!.email}');
     // make firebase email verified false so i must verify again
-
+    await SessionManager.logOut(context);
     await GoogleSignIn().signOut();
     await FirebaseAuth.instance.signOut();
+
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const SplashScreen()));
   }
@@ -171,8 +174,8 @@ class _ProfileState extends State<Profile> {
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           //get user data
-                          print(
-                              'BAKA SPEAKING --------------------------------------- ${user.uid}');
+                          // print(
+                          //     'BAKA SPEAKING --------------------------------------- ${user.uid}');
                           final userData =
                               snapshot.data!.data() as Map<String, dynamic>;
                           print(userData);
