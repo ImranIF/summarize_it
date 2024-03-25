@@ -31,11 +31,11 @@ class _LoginPageState extends State<LoginPage> {
 
   void signUserIn() async {
     if (_areAllFieldsFilled()) {
+      await SessionManager.init();
       //show loading circle
       setState(() {
         isLoading = true;
       });
-      await SessionManager.init();
 
       //try sign in
       try {

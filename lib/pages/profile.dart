@@ -30,27 +30,26 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   bool isLoading = false;
   void signUserOut() async {
-    // print('---------------------------${user!.email}');
-    // make firebase email verified false so i must verify again
-    await SessionManager.logOut(context);
-    await GoogleSignIn().signOut();
-    await FirebaseAuth.instance.signOut();
+    bool sessionLogOut = await SessionManager.logOut(context);
 
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const SplashScreen()));
-  }
-
-  Future<void> editField(String field) async {
-    // return
+    if (sessionLogOut) {
+      await GoogleSignIn().signOut();
+      await FirebaseAuth.instance.signOut();
+      // make firebase email verified false so i must verify again
+      Future.delayed(Duration(seconds: 2), () async {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const SplashScreen()));
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser!;
-    final query = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.email)
-        .snapshots();
+    // final query = FirebaseFirestore.instance
+    //     .collection('users')
+    //     .doc(user.email)
+    //     .snapshots();
 
     return Scaffold(
       body: Container(
@@ -622,6 +621,32 @@ class _ProfileState extends State<Profile> {
                                                   Icons.comment,
                                                   size: 10,
                                                 )),
+                                            const SizedBox(width: 10),
+                                            Material(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                color: Colors.transparent,
+                                                child: InkWell(
+                                                    customBorder:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20)),
+                                                    onTap: () {
+                                                      displayDeleteDialog(
+                                                          context,
+                                                          userPosts[index]);
+                                                    },
+                                                    child: Ink(
+                                                      child: const Icon(
+                                                        Icons
+                                                            .delete_forever_rounded,
+                                                        size: 15,
+                                                        color: Color.fromARGB(
+                                                            255, 35, 141, 123),
+                                                      ),
+                                                    )))
                                           ],
                                         )
                                       ],
@@ -784,5 +809,39 @@ class _ProfileState extends State<Profile> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  Future<void> displayDeleteDialog(BuildContext context, dynamic post) async {
+    return await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+                title: const Text('Delete Post',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 31, 140, 155),
+                    )),
+                content:
+                    const Text('Are you sure you want to delete this post?'),
+                actions: [
+                  ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text(
+                        'No',
+                        style: TextStyle(
+                          color: Colors.green,
+                        ),
+                      )),
+                  ElevatedButton(
+                      onPressed: () async {
+                        await post.reference.delete();
+                        Navigator.of(context).pop(true);
+                      },
+                      child: const Text(
+                        'Yes',
+                        style: TextStyle(
+                          color: Colors.red,
+                        ),
+                      ))
+                ]));
   }
 }

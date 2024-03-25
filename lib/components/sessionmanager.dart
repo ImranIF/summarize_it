@@ -9,18 +9,23 @@ class SessionManager {
   // Initialize SharedPreferences
   static Future<void> init() async {
     _preferences = await SharedPreferences.getInstance();
-    // print('Shared Preferences initialized');
+    Future.delayed(Duration(seconds: 1), () {});
+    print('Shared Preferences initialized');
   }
 
   // Record login time
   static Future<void> logIn() async {
+    if (_preferences == null) {
+      await init();
+    }
     await _preferences!
         .setInt(_loginTimeKey, DateTime.now().millisecondsSinceEpoch);
-    // print('Login time recorded');
+    Future.delayed(Duration(seconds: 1), () {});
+    print('Login time recorded');
   }
 
   // Calculate session duration and display in dialog
-  static Future<void> logOut(BuildContext context) async {
+  static Future<bool> logOut(BuildContext context) async {
     // Ensure preferences are initialized
     if (_preferences == null) {
       await init();
@@ -57,6 +62,8 @@ class SessionManager {
 
       // Clear login time from SharedPreferences
       await _preferences!.remove(_loginTimeKey);
+      return true;
     }
+    return true;
   }
 }
