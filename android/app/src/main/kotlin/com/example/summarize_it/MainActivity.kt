@@ -1,4 +1,4 @@
-package com.example.summarize_it
+package com.faridimran.summarize_it
 
 import io.flutter.embedding.android.FlutterActivity
 
