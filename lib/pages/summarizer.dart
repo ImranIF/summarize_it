@@ -17,6 +17,14 @@ class Summarizer extends StatefulWidget {
 
 class _SummarizerState extends State<Summarizer> {
   final TextEditingController inputController = TextEditingController();
+  List<String> modelUris = [
+    "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
+    "https://api-inference.huggingface.co/models/sshleifer/distilbart-cnn-12-6"
+  ];
+  List<String> tokens = [
+    "Bearer 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",
+    "Bearer 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"
+  ];
 
   bool isLoading = false;
 
@@ -216,75 +224,73 @@ class _SummarizerState extends State<Summarizer> {
 
     final model = Provider.of<TextSummarizationModel>(context, listen: false);
 
-    // showDialog(
-    //   context: context,
-    //   builder: (context) => const Center(
-    //     child: CircularProgressIndicator(),
-    //   ),
-    // );
+    for (int i = 0; i < modelUris.length; i++) {
+      final response = await http.post(
+        Uri.parse(modelUris[i]),
+        headers: {
+          "Authorization": tokens[i], // Replace with your actual API token
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+        body: utf8.encode(jsonEncode({"inputs": inputController.text})),
+      );
 
-    final response = await http.post(
-      Uri.parse(
-          "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"),
-      headers: {
-        "Authorization":
-            "Bearer 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", // Replace with your actual API token
-        "Content-Type": "application/json; charset=UTF-8",
-      },
-      body: utf8.encode(jsonEncode({"inputs": inputController.text})),
-    );
+      print("Request Body: ${jsonEncode({"inputs": inputController.text})}");
+      print("Response Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
 
-    print("Request Body: ${jsonEncode({"inputs": inputController.text})}");
-    print("Response Code: ${response.statusCode}");
-    print("Response Body: ${response.body}");
+      if (response.statusCode != 200 && i < modelUris.length - 1) {
+        continue;
+      }
 
-    if (response.statusCode == 200) {
-      dynamic responseData = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        dynamic responseData = jsonDecode(response.body);
 
-      if (responseData is List<dynamic> && responseData.isNotEmpty) {
-        final Map<String, dynamic> summaryData = responseData[0];
+        if (responseData is List<dynamic> && responseData.isNotEmpty) {
+          final Map<String, dynamic> summaryData = responseData[0];
 
-        if (summaryData.containsKey("summary_text")) {
-          model.setOutputText(summaryData["summary_text"] ?? "");
+          if (summaryData.containsKey("summary_text")) {
+            model.setOutputText(summaryData["summary_text"] ?? "");
+          } else {
+            print("Error: 'summary_text' field not found in the response");
+          }
         } else {
-          print("Error: 'summary_text' field not found in the response");
+          print("Error: Unexpected response format");
         }
       } else {
-        print("Error: Unexpected response format");
-      }
-    } else {
-      print("Error: ${response.reasonPhrase}");
-      // ignore: use_build_context_synchronously
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text(
-            'Error',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Color.fromARGB(255, 31, 140, 155)),
-          ),
-          content: Text(
-            "Please provide valid input and ensure you have a stable Internet Connection running!",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.merriweather(
-              fontSize: 16,
-              color: Color.fromARGB(255, 100, 52, 34),
+        print("Error: ${response.reasonPhrase}");
+        // ignore: use_build_context_synchronously
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text(
+              'Error',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color.fromARGB(255, 31, 140, 155)),
             ),
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text(
-                'Ok',
-                style: TextStyle(color: Colors.green),
+            content: Text(
+              "Please provide valid input and ensure you have a stable Internet Connection running!",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.merriweather(
+                fontSize: 16,
+                color: Color.fromARGB(255, 100, 52, 34),
               ),
             ),
-          ],
-        ),
-      );
+            actions: [
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text(
+                  'Ok',
+                  style: TextStyle(color: Colors.green),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+      setState(() {
+        isLoading = false;
+      });
+      break;
     }
-    setState(() {
-      isLoading = false;
-    });
   }
 }
