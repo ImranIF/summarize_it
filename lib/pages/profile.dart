@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -33,7 +34,14 @@ class _ProfileState extends State<Profile> {
     bool sessionLogOut = await SessionManager.logOut(context);
 
     if (sessionLogOut) {
-      await GoogleSignIn().signOut();
+      if (FirebaseAuth.instance.currentUser!.providerData[0].providerId ==
+          'google.com') {
+        await GoogleSignIn().signOut();
+      } else if (FirebaseAuth
+              .instance.currentUser!.providerData[0].providerId ==
+          'facebook.com') {
+        await FacebookAuth.instance.logOut();
+      }
       await FirebaseAuth.instance.signOut();
       // make firebase email verified false so i must verify again
       Future.delayed(Duration(seconds: 2), () async {

@@ -28,6 +28,63 @@ The mobile app project has several branches, two of which: `main`, `development`
 If you want to start using the mobile app directly without making any technical modification, head over to the [usage section](#usage) instead.
 ### Installation
 Before starting, make sure you already have Flutter and Dart installed on your local system. For details on how to do that, check the [official documentation](https://docs.flutter.dev/get-started/install).
+
+<details>
+<summary> Project Structure </summary>
+
+An illustration of the project structure of the mobile application is provided as follows:
+
+```
+	summarize_it
+	├── .dart_tool
+	├── .idea
+    ├── android
+    ├── assets
+    ├── build
+	├── media
+    .
+    .
+	└── lib
+		├── authentication
+        │   ├── auth_page.dart
+        │   ├── auth_service.dart
+        │   ├── loginpage.dart
+        │   └── registerpage.dart
+		├── components
+        │   ├── custombutton.dart
+        │   ├── customtextfield.dart
+        │   ├── pdfapi.dart
+        │   ├── sessionmanager.dart
+        │   └── textbox.dart
+		├── models
+        │   ├── textsummarizationmodel.dart
+        │   └── usermodel.dart
+		├── pages
+        │   ├── aboutus.dart
+        │   ├── graphql.dart
+        │   ├── help.dart
+        │   ├── homepage.dart
+        │   ├── pdfviewerpage.dart
+        │   ├── postlist.dart
+        │   ├── postscreen.dart
+        │   ├── profile.dart
+        │   ├── rating.dart
+        │   ├── report.dart
+        │   └── summarizer.dart
+		├── provider
+        │   └── userprovider.dart
+		├── sass
+        │   └── aboutus.scss
+        ├── screen
+        │   ├── commentscreen.dart
+        │   ├── homescreen.dart
+        │   └── splashscreen.dart
+		└── firebase_options.dart
+		└── main.dart
+```
+
+</details>
+
 ## Usage
 Ensure that your mobile device specifications meet the minimum requirements first. Once that is confirmed, download the apk file and install it into your mobile device.
 ### Requirements

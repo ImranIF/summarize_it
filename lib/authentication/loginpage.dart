@@ -396,7 +396,30 @@ class _LoginPageState extends State<LoginPage> {
                         15.0,
                         Colors.white,
                         text: 'Sign in with Facecbook',
-                        onPressed: () {},
+                        onPressed: () {
+                          setState(() {
+                            isLoading = true;
+                          });
+
+                          AuthService()
+                              .signInWithFacebook(context)
+                              .then((value) {
+                            setState(() {
+                              isLoading = false;
+                            });
+
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AuthPage(),
+                                ));
+                          }).catchError((e) {
+                            setState(() {
+                              isLoading = false;
+                            });
+                            print('------------------------$e');
+                          });
+                        },
                         hpadding: 15,
                         wpadding: 15,
                         borderRadius: 15.0,
