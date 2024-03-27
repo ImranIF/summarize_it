@@ -72,7 +72,6 @@ class GraphQL extends StatelessWidget {
                               query GetUsers {
                                 users {
                                   email
-                                  password
                                   fullName
                                   imageURL
                                   address
