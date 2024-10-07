@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:summarize_it/authentication/loginpage.dart';
+import 'package:summarize_it/authentication/registerpage.dart';
+import 'package:summarize_it/components/sessionmanager.dart';
+import 'package:summarize_it/provider/userprovider.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (context) => UserProvider()),
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -14,11 +27,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Summarize It',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 70, 141, 123)),
         useMaterial3: true,
       ),
       home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/splash': (context) => const SplashScreen(),
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+      },
     );
   }
 }
