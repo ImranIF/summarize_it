@@ -7,6 +7,7 @@
 [![Status](https://img.shields.io/badge/stable_release-v1.0.0-blue)](https://img.shields.io/badge/stable_release-v1.0.0-blue)
 [![visitors](https://visitor-badge.laobi.icu/badge?page_id=ImranIF.R_kgDOLHQ8kg&left_color=red&right_color=green)](https://visitor-badge.laobi.icu/badge?page_id=ImranIF.R_kgDOLHQ8kg&left_color=red&right_color=green)
 [![Static Badge](https://img.shields.io/badge/license-MIT-blue)](https://img.shields.io/badge/license-MIT-blue)
+[![Google Play Store](https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.faridimran.summarize_it)
 
 </div>
 
@@ -16,12 +17,17 @@ _Summarize It_ is an AI text summarizer mobile application developed using Flutt
 
 ## Table of Contents
 
+- [Downloads](#downloads)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Features](#features)
 - [Changelog](#changelog)
 - [Contributors](#contributors)
 - [Acknowledgement](#acknowledgement)
+
+## Downloads
+
+The mobile app is publicly available for downloading at [Google Play Store](https://play.google.com/store/apps/details?id=com.faridimran.summarize_it).
 
 ## Getting Started
 
