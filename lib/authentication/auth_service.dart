@@ -14,7 +14,7 @@ class AuthService {
 
     // create a credential from the access token
     final OAuthCredential facebookAuthCredential =
-        FacebookAuthProvider.credential(loginResult.accessToken!.token);
+        FacebookAuthProvider.credential(loginResult.accessToken!.tokenString);
     print(
         '----------------facebookAuthCredential: $facebookAuthCredential--------------------');
 
