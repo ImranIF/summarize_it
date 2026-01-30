@@ -36,9 +36,7 @@ dependencies:
   cupertino_icons:
   lottie:
   google_fonts:
-  google_sign_in: 6.3.0
-  firebase_core: 3.13.1
-  firebase_auth: 5.5.4
+  google_sign_in:
   provider:
   gradient_icon:
   widget_zoom:
@@ -47,9 +45,7 @@ dependencies:
   skeletonizer:
   flutter_facebook_auth:
   convex_bottom_bar:
-  cloud_firestore:
-  firebase_storage: 12.4.6
-  firebase_app_check: ^0.3.2+6
+  supabase_flutter:
   http:
   timeago:
   geolocator:

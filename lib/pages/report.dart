@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,6 +8,7 @@ import 'package:summarize_it/components/pdfapi.dart';
 import 'package:summarize_it/pages/pdfviewerpage.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Report extends StatefulWidget {
   const Report({super.key});
@@ -220,55 +219,61 @@ The one used for text summarization is fine-tuned on CNN Daily Mail dataset and 
   }
 
   Future<void> getDemographicDataFromFirestore() async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .orderBy('dateOfBirth', descending: true)
-        .where('dateOfBirth', isNotEqualTo: '')
-        .get();
-    List<DemographicChartData> list =
-        querySnapshot.docs.map((documentSnapshot) {
-      print(
-          '-------------------${documentSnapshot['postCount']}-------------------');
-      // if (documentSnapshot['dateOfBirth'] == null) {
-      //   return DemographicChartData(x: DateTime.now(), y: 0);
-      // }
-      return DemographicChartData(
-        // firebase has dateOfBirth value in this format: July 4, 2002 at 12:00:00 AM UTC+6
-        x: documentSnapshot['dateOfBirth'] is Timestamp
-            ? documentSnapshot['dateOfBirth'].toDate()
-            : DateTime.parse(documentSnapshot['dateOfBirth']),
+    try {
+      final response = await Supabase.instance.client
+          .from('users')
+          .select('dateOfBirth, postCount')
+          .not('dateOfBirth', 'is', null)
+          .neq('dateOfBirth', '')
+          .order('dateOfBirth', ascending: false);
 
-        y: documentSnapshot['postCount'],
-      );
-    }).toList();
-    setState(() {
-      demographicChartData = list;
-    });
+      List<DemographicChartData> list =
+          response.map<DemographicChartData>((user) {
+        print('-------------------${user['postCount']}-------------------');
+
+        DateTime dateOfBirth;
+        try {
+          dateOfBirth = DateTime.parse(user['dateOfBirth']);
+        } catch (e) {
+          dateOfBirth = DateTime.now();
+        }
+
+        return DemographicChartData(
+          x: dateOfBirth,
+          y: user['postCount'] ?? 0,
+        );
+      }).toList();
+
+      setState(() {
+        demographicChartData = list;
+      });
+    } catch (e) {
+      print('Error fetching demographic data: $e');
+    }
   }
+}
+// Future<void> _openPdf(BuildContext context, String assetPath) async {
+//   try {
+//     final ByteData data = await rootBundle.load(assetPath);
+//     await Navigator.push(
+//       context,
+//       MaterialPageRoute(
+//         builder: (context) => PdfViewer(pdfData: data.buffer.asUint8List()),
+//       ),
+//     );
+//   } catch (e) {
+//     print("Error opening PDF: $e");
+//     // Handle error opening PDF
+//   }
+// }
 
-  // Future<void> _openPdf(BuildContext context, String assetPath) async {
-  //   try {
-  //     final ByteData data = await rootBundle.load(assetPath);
-  //     await Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => PdfViewer(pdfData: data.buffer.asUint8List()),
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     print("Error opening PDF: $e");
-  //     // Handle error opening PDF
-  //   }
-  // }
-
-  void openPDF(BuildContext context, File file) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PdfViewerPage(file: file),
-      ),
-    );
-  }
+void openPDF(BuildContext context, File file) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => PdfViewerPage(file: file),
+    ),
+  );
 }
 
 // class PdfViewer extends StatelessWidget {

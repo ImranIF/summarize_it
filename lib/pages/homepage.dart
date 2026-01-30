@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/pages/profile.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,15 +13,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final user = FirebaseAuth.instance.currentUser;
+  final user = Supabase.instance.client.auth.currentUser;
 
   void signUserOut() async {
-    print('---------------------------${user!.email}');
-    print(FirebaseFirestore.instance
-        .collection('users')
-        .doc(user!.email)
-        .snapshots);
-    await FirebaseAuth.instance.signOut();
+    print('---------------------------${user?.email}');
+    await Supabase.instance.client.auth.signOut();
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const SplashScreen()));
   }

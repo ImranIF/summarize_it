@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,6 +12,7 @@ import 'package:summarize_it/authentication/registerpage.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/customtextfield.dart';
 import 'package:summarize_it/components/sessionmanager.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -32,67 +32,67 @@ class _LoginPageState extends State<LoginPage> {
   void signUserIn() async {
     if (_areAllFieldsFilled()) {
       await SessionManager.init();
-      //show loading circle
+      // Show loading circle
       setState(() {
         isLoading = true;
       });
 
-      //try sign in
       try {
-        // signIn(context);
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: emailController.text, password: passwordController.text);
+        final response = await AuthService().signInWithEmailPassword(
+          emailController.text.trim(),
+          passwordController.text.trim(),
+        );
 
-        // verify email
-        if (FirebaseAuth.instance.currentUser!.emailVerified != true) {
-          await FirebaseAuth.instance.currentUser!.sendEmailVerification();
-
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Email Sent', textAlign: TextAlign.center),
-              content: const Text(
-                  'An email has been sent to your email address. Please click on the link in the email to sign in.'),
-              actions: [
-                Center(
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      'Okay',
-                      style: TextStyle(color: Color.fromARGB(255, 52, 110, 91)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-
-          // start timer to check email verification
-          Timer.periodic(const Duration(seconds: 2), (timer) {
-            checkEmailVerification(timer);
-          });
-        } else {
-          //pop loading circle
-          setState(() {
-            isLoading = false;
-          });
-          await SessionManager.logIn();
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AuthPage(),
-              ));
-        }
-      } on FirebaseAuthException catch (e) {
-        //pop loading circle
         setState(() {
           isLoading = false;
         });
-        print('----------------------------${e.code}');
-        // wrong email
-        if (e.code == 'invalid-credential') {
-          wrongInputCredentialMessage();
+
+        if (response?.user != null) {
+          // Check if email is verified (Supabase handles this automatically)
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AuthPage()),
+          );
         }
+      } catch (e) {
+        setState(() {
+          isLoading = false;
+        });
+        
+        print('Login error: $e');
+        
+        // Handle different types of errors
+        String errorMessage = 'Login failed. Please check your credentials.';
+        if (e.toString().contains('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please try again.';
+        } else if (e.toString().contains('Email not confirmed')) {
+          errorMessage = 'Please verify your email before signing in.';
+        } else if (e.toString().contains('Too many requests')) {
+          errorMessage = 'Too many attempts. Please try again later.';
+        }
+        
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error', textAlign: TextAlign.center),
+            content: Text(
+              errorMessage,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Color.fromARGB(255, 52, 110, 91)),
+            ),
+            actions: [
+              Center(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Okay',
+                    style: TextStyle(color: Color.fromARGB(255, 52, 110, 91)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
       }
     } else {
       showDialog(
@@ -118,35 +118,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> checkEmailVerification(timer) async {
-    // reload user to check email verification
-    await FirebaseAuth.instance.currentUser!.reload();
-    print(
-        '------------------------${FirebaseAuth.instance.currentUser!.emailVerified}');
-    if (FirebaseAuth.instance.currentUser!.emailVerified) {
-      timer.cancel();
-      //pop loading circle
-      setState(() {
-        isLoading = false;
-      });
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const AuthPage(),
-          ));
-    }
+    // Supabase handles email verification automatically
+    // This method is no longer needed but keeping for compatibility
+    timer.cancel();
   }
 
   Future<void> signIn(BuildContext context) async {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text, password: passwordController.text);
-    setState(() {
-      isLoading = false;
-    });
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AuthPage(),
-        ));
+    // This method is replaced by signUserIn() above
   }
 
   void wrongInputCredentialMessage() {
@@ -154,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
         context: context,
         builder: (context) {
           return const AlertDialog(
-            title: const Text('Error', textAlign: TextAlign.center),
+            title: Text('Error', textAlign: TextAlign.center),
             content: Text(
               'Incorrect Email or Password. Please try again.',
               textAlign: TextAlign.center,
@@ -360,27 +338,45 @@ class _LoginPageState extends State<LoginPage> {
                         15.0,
                         Colors.black,
                         text: 'Sign in with Google',
-                        onPressed: () {
+                        onPressed: () async {
                           setState(() {
                             isLoading = true;
                           });
 
-                          AuthService().signInWithGoogle().then((value) {
+                          try {
+                            final response = await AuthService().signInWithGoogle();
                             setState(() {
                               isLoading = false;
                             });
 
-                            Navigator.push(
+                            if (response?.user != null) {
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const AuthPage(),
-                                ));
-                          }).catchError((e) {
+                                ),
+                              );
+                            }
+                          } catch (e) {
                             setState(() {
                               isLoading = false;
                             });
-                            print('------------------------$e');
-                          });
+                            print('Google sign in error: $e');
+                            
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Error'),
+                                content: Text('Google sign in failed: ${e.toString()}'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
                         },
                         hpadding: 15,
                         wpadding: 15,
@@ -395,30 +391,46 @@ class _LoginPageState extends State<LoginPage> {
                       child: CustomButtonWithIcon(
                         15.0,
                         Colors.white,
-                        text: 'Sign in with Facecbook',
-                        onPressed: () {
+                        text: 'Sign in with Facebook',
+                        onPressed: () async {
                           setState(() {
                             isLoading = true;
                           });
 
-                          AuthService()
-                              .signInWithFacebook(context)
-                              .then((value) {
+                          try {
+                            final response = await AuthService().signInWithFacebook(context);
                             setState(() {
                               isLoading = false;
                             });
 
-                            Navigator.push(
+                            if (response?.user != null) {
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => AuthPage(),
-                                ));
-                          }).catchError((e) {
+                                  builder: (context) => const AuthPage(),
+                                ),
+                              );
+                            }
+                          } catch (e) {
                             setState(() {
                               isLoading = false;
                             });
-                            print('------------------------$e');
-                          });
+                            print('Facebook sign in error: $e');
+                            
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Error'),
+                                content: Text('Facebook sign in failed: ${e.toString()}'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
                         },
                         hpadding: 15,
                         wpadding: 15,

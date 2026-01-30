@@ -1,0 +1,67 @@
+name: Keep Supabase Project Active
+
+on:
+  schedule:
+    # Run every 5 days at 12:00 UTC (cron: minute hour day-of-month month day-of-week)
+    - cron: '0 12 */5 * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Ping Supabase Database
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      run: |
+        echo "Pinging Supabase project to keep it active..."
+        
+        # Method 1: Simple REST API call to check if service is alive
+        response=$(curl -s -w "HTTP_STATUS:%{http_code}" \
+          -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+          -H "apikey: $SUPABASE_ANON_KEY" \
+          -H "Content-Type: application/json" \
+          "$SUPABASE_URL/rest/v1/users?select=id&limit=1")
+        
+        http_status=$(echo $response | sed -n 's/.*HTTP_STATUS:\([0-9]*\)$/\1/p')
+        
+        if [ "$http_status" -eq 200 ] || [ "$http_status" -eq 401 ] || [ "$http_status" -eq 403 ]; then
+          echo "✅ Supabase project is active! HTTP Status: $http_status"
+          echo "Response: $(echo $response | sed 's/HTTP_STATUS:.*//')"
+        else
+          echo "⚠️  Unexpected response. HTTP Status: $http_status"
+          echo "Response: $(echo $response | sed 's/HTTP_STATUS:.*//')"
+        fi
+        
+        # Method 2: Additional ping to different endpoint for redundancy
+        echo "Sending additional ping to auth endpoint..."
+        auth_response=$(curl -s -w "HTTP_STATUS:%{http_code}" \
+          -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+          -H "apikey: $SUPABASE_ANON_KEY" \
+          "$SUPABASE_URL/auth/v1/settings")
+          
+        auth_status=$(echo $auth_response | sed -n 's/.*HTTP_STATUS:\([0-9]*\)$/\1/p')
+        echo "Auth endpoint status: $auth_status"
+        
+        echo "Ping completed at $(date)"
+
+    - name: Log Activity
+      run: |
+        echo "## Supabase Keep-Alive Log" >> activity.log
+        echo "Last ping: $(date)" >> activity.log
+        echo "Status: Active" >> activity.log
+        echo "---" >> activity.log
+        
+    - name: Commit Activity Log (Optional)
+      continue-on-error: true
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add activity.log
+        git commit -m "Update Supabase activity log - $(date)" || echo "No changes to commit"
+        git push || echo "Nothing to push"

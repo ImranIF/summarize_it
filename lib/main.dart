@@ -5,14 +5,18 @@ import 'package:summarize_it/authentication/registerpage.dart';
 import 'package:summarize_it/components/sessionmanager.dart';
 import 'package:summarize_it/provider/userprovider.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: 'https://iwcngaodjxkaitmvlzsc.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3Y25nYW9kanhrYWl0bXZsenNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNDAyMTQsImV4cCI6MjA3MTYxNjIxNH0.LfXMWVHPc38iVcXIrN9yw4mqU5adYOIBGsqTKGC1RDY',
   );
+
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => UserProvider()),
   ], child: const MyApp()));

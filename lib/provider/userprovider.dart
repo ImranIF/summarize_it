@@ -1,21 +1,30 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:summarize_it/models/usermodel.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserProvider extends ChangeNotifier {
   UserModel? userModel;
+  final SupabaseClient _supabase = Supabase.instance.client;
 
-  User get getUser => FirebaseAuth.instance.currentUser!;
+  User? get getUser => _supabase.auth.currentUser;
 
   Future<void> getUserInfo() async {
-    if (FirebaseAuth.instance.currentUser != null) {
+    final currentUser = getUser;
+    if (currentUser != null && currentUser.email != null) {
       print('----------------user:--------------------');
-      User user = getUser;
-      userModel = await UserModel.getUserData(user.email!);
+      userModel = await UserModel.getUserData(currentUser.email!);
       print('----------------userModel: $userModel--------------------');
       notifyListeners();
     }
+  }
+
+  Future<void> signOut() async {
+    await _supabase.auth.signOut();
+    userModel = null;
+    notifyListeners();
+  }
+
+  bool isLoggedIn() {
+    return _supabase.auth.currentUser != null;
   }
 }

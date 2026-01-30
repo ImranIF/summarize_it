@@ -1,7 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -20,6 +17,7 @@ import 'package:summarize_it/screen/spashscreen.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:widget_zoom/widget_zoom.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -30,21 +28,104 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   bool isLoading = false;
+  Future<List<Map<String, dynamic>>>? _postsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _postsFuture = _getUserPosts();
+  }
+
+  Future<Map<String, dynamic>?> _getUserData() async {
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    if (currentUser?.email == null) return null;
+
+    try {
+      final response = await Supabase.instance.client
+          .from('users')
+          .select()
+          .eq('email', currentUser!.email!)
+          .single();
+      print("response: $response");
+      return response;
+    } catch (e) {
+      print('Error fetching user data: $e');
+      return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _getUserPosts() async {
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    if (currentUser?.email == null) return [];
+
+    try {
+      final response = await Supabase.instance.client
+          .from('posts')
+          .select()
+          .eq('email', currentUser!.email!)
+          .order('timestamp', ascending: false);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('Error fetching user posts: $e');
+      return [];
+    }
+  }
+
+  // toggle like status
+  Future<void> _toggleLike(Map<String, dynamic> post) async {
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    if (currentUser?.email == null) return;
+
+    final userEmail = currentUser!.email!;
+    List<dynamic> likes = List.from(post['likes'] ?? []);
+
+    bool isLiked = likes.contains(userEmail);
+
+    if (isLiked) {
+      likes.remove(userEmail);
+    } else {
+      likes.add(userEmail);
+    }
+
+    try {
+      await Supabase.instance.client.from('posts').update({
+        'likes': likes,
+        'likeCount': likes.length,
+      }).eq('id', post['id']);
+
+      // Update local state
+      setState(() {
+        post['likes'] = likes;
+        post['likeCount'] = likes.length;
+      });
+    } catch (e) {
+      print('Error updating like: $e');
+    }
+  }
+
   void signUserOut() async {
     bool sessionLogOut = await SessionManager.logOut(context);
 
     if (sessionLogOut) {
-      if (FirebaseAuth.instance.currentUser!.providerData[0].providerId ==
-          'google.com') {
-        await GoogleSignIn().signOut();
-      } else if (FirebaseAuth
-              .instance.currentUser!.providerData[0].providerId ==
-          'facebook.com') {
-        await FacebookAuth.instance.logOut();
+      final currentUser = Supabase.instance.client.auth.currentUser;
+
+      // Sign out from social providers if they were used
+      try {
+        await GoogleSignIn.instance.signOut();
+      } catch (e) {
+        print('Google sign out error: $e');
       }
-      await FirebaseAuth.instance.signOut();
-      // make firebase email verified false so i must verify again
-      Future.delayed(Duration(seconds: 2), () async {
+
+      try {
+        await FacebookAuth.instance.logOut();
+      } catch (e) {
+        print('Facebook sign out error: $e');
+      }
+
+      // Sign out from Supabase
+      await Supabase.instance.client.auth.signOut();
+
+      Future.delayed(const Duration(seconds: 2), () async {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => const SplashScreen()));
       });
@@ -53,11 +134,13 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser!;
-    // final query = FirebaseFirestore.instance
-    //     .collection('users')
-    //     .doc(user.email)
-    //     .snapshots();
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    // Check if user is logged in
+    if (currentUser == null) {
+      return const Center(
+        child: Text('Please log in to view your profile'),
+      );
+    }
 
     return Scaffold(
       body: Container(
@@ -173,23 +256,15 @@ class _ProfileState extends State<Profile> {
                       ),
                     ],
                   ),
-                  StreamBuilder<DocumentSnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(user.email)
-                          .snapshots(),
+                  FutureBuilder<Map<String, dynamic>?>(
+                      future: _getUserData(),
                       builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          //get user data
-                          // print(
-                          //     'BAKA SPEAKING --------------------------------------- ${user.uid}');
-                          final userData =
-                              snapshot.data!.data() as Map<String, dynamic>;
+                        if (snapshot.hasData && snapshot.data != null) {
+                          final userData = snapshot.data!;
                           print(userData);
 
                           return ListView(
                             shrinkWrap: true,
-                            // padding: const EdgeInsets.all(50),
                             children: [
                               const SizedBox(height: 50),
                               //profile
@@ -251,7 +326,7 @@ class _ProfileState extends State<Profile> {
                                   //   onPressed: () => editField('Username'),
                                   // ),
                                   const SizedBox(height: 5),
-                                  Text(user!.email!,
+                                  Text(currentUser.email!,
                                       textAlign: TextAlign.left,
                                       style: const TextStyle(
                                           fontSize: 15,
@@ -432,35 +507,52 @@ class _ProfileState extends State<Profile> {
                                   ],
                                 ),
                               ]));
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
                         } else {
-                          return const Center(child: Text('Error'));
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
                       }),
-                  StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                      stream: FirebaseFirestore.instance
-                          .collection('posts')
-                          .where('email',
-                              isEqualTo:
-                                  FirebaseAuth.instance.currentUser!.email)
-                          .orderBy('timestamp', descending: true)
-                          .snapshots(),
+                  // user posts list
+                  FutureBuilder<List<Map<String, dynamic>>>(
+                      future: _postsFuture,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
-                          final userPosts = snapshot.data!.docs;
+                          final userPosts = snapshot.data!;
                           return SingleChildScrollView(
                             child: ListView.builder(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: userPosts.length,
                                 itemBuilder: (context, index) {
-                                  final postTime =
-                                      Timestamp.fromMillisecondsSinceEpoch(
-                                          userPosts[index]['timestamp'] as int);
+                                  final post = userPosts[index];
+                                  DateTime postTime;
+                                  try {
+                                    if (post['timestamp'] is String) {
+                                      postTime =
+                                          DateTime.parse(post['timestamp']);
+                                    } else if (post['timestamp'] is int) {
+                                      postTime =
+                                          DateTime.fromMillisecondsSinceEpoch(
+                                              post['timestamp']);
+                                    } else {
+                                      postTime = DateTime.now();
+                                    }
+                                  } catch (e) {
+                                    postTime = DateTime.now();
+                                  }
+
                                   print(postTime);
                                   final formattedPostTime =
-                                      timeago.format(postTime.toDate());
-                                  bool isLiked = userPosts[index]['likes']
-                                      .contains(user.email);
+                                      timeago.format(postTime);
+                                  final user = Supabase
+                                      .instance.client.auth.currentUser!;
+                                  bool isLiked = (post['likes'] as List?)
+                                          ?.contains(user.email) ==
+                                      true;
+                                  //
                                   return Container(
                                     margin: const EdgeInsets.only(
                                         left: 40, right: 40, top: 25),
@@ -476,22 +568,20 @@ class _ProfileState extends State<Profile> {
                                           children: [
                                             Column(
                                               children: [
-                                                userPosts[index]['image'] !=
-                                                        null
+                                                post['image'] != null
                                                     ? WidgetZoom(
                                                         heroAnimationTag:
                                                             'postImage',
                                                         zoomWidget:
                                                             Image.network(
-                                                                userPosts[index]
-                                                                    ['image'],
+                                                                post['image'],
                                                                 height: 100,
                                                                 width: 100),
                                                       )
                                                     : const SizedBox(),
                                               ],
                                             ),
-                                            userPosts[index]['image'] != null
+                                            post['image'] != null
                                                 ? const SizedBox(width: 10)
                                                 : const SizedBox(),
                                             Expanded(
@@ -502,7 +592,7 @@ class _ProfileState extends State<Profile> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    userPosts[index]['title'],
+                                                    post['title'],
                                                     style: GoogleFonts.georama(
                                                       fontSize: 15,
                                                       fontWeight:
@@ -516,8 +606,7 @@ class _ProfileState extends State<Profile> {
                                                     ),
                                                   ),
                                                   Text(
-                                                    userPosts[index]
-                                                        ['description'],
+                                                    post['description'],
                                                     style: GoogleFonts.georama(
                                                       fontSize: 10,
                                                       color:
@@ -552,83 +641,35 @@ class _ProfileState extends State<Profile> {
                                               CrossAxisAlignment.center,
                                           children: [
                                             IconButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    // print(isLiked);
-                                                    // isLiked = !isLiked;
-                                                    // print(isLiked);
-
-                                                    if (userPosts[index]
-                                                                ['likes']
-                                                            .contains(
-                                                                user.email) !=
-                                                        true) {
-                                                      print(
-                                                          '---------------${userPosts[index]['likes']}');
-                                                      userPosts[index]
-                                                          .reference
-                                                          .update({
-                                                        'likes': FieldValue
-                                                            .arrayUnion(
-                                                                [user.email]),
-                                                        'likeCount': FieldValue
-                                                            .increment(1),
-                                                      });
-                                                    } else {
-                                                      // userPosts[index]['likes']
-                                                      //     .remove(user.email);
-                                                      print(
-                                                          'ehe---------------?${userPosts[index]['likes']}');
-                                                      userPosts[index]
-                                                          .reference
-                                                          .update({
-                                                        'likes': FieldValue
-                                                            .arrayRemove(
-                                                                [user.email]),
-                                                        'likeCount': FieldValue
-                                                            .increment(-1)
-                                                      });
-                                                      // FirebaseFirestore.instance
-                                                      //     .collection('posts')
-                                                      //     .doc('postId')
-                                                      //     .update({
-                                                      //   'likes':
-                                                      //       FieldValue.arrayUnion(
-                                                      //           [user.email]),
-                                                      // });
-                                                    }
-                                                  });
-                                                },
-                                                icon: Icon(
-                                                    Icons.favorite_rounded,
-                                                    color: userPosts[index]
-                                                                ['likes']
-                                                            .contains(
-                                                                user.email)
-                                                        ? Colors.red
-                                                        : Colors.black,
-                                                    size: 10)),
-                                            Text(userPosts[index]['likeCount']
-                                                .toString()),
+                                              onPressed: () =>
+                                                  _toggleLike(post),
+                                              icon: Icon(Icons.favorite_rounded,
+                                                  color: isLiked
+                                                      ? Colors.red
+                                                      : Colors.black,
+                                                  size: 10),
+                                            ),
+                                            Text(post['likeCount'].toString()),
                                             IconButton(
-                                                onPressed: () {
-                                                  print(
-                                                      '-----------------${userPosts[index]['postId']}');
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              CommentScreen(
-                                                                  postId: userPosts[
-                                                                          index]
-                                                                      ['postId']
-                                                                  // post: userPosts[index],
-                                                                  )));
-                                                },
-                                                icon: const Icon(
-                                                  Icons.comment,
-                                                  size: 10,
-                                                )),
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        CommentScreen(
+                                                      postId:
+                                                          post['id'].toString(),
+                                                      postTitle:
+                                                          post['title'] ?? '',
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              icon: const Icon(
+                                                Icons.comment_outlined,
+                                                size: 10,
+                                              ),
+                                            ),
                                             const SizedBox(width: 10),
                                             Material(
                                                 borderRadius:
@@ -643,8 +684,7 @@ class _ProfileState extends State<Profile> {
                                                                         20)),
                                                     onTap: () {
                                                       displayDeleteDialog(
-                                                          context,
-                                                          userPosts[index]);
+                                                          context, post);
                                                     },
                                                     child: Ink(
                                                       child: const Icon(
@@ -662,12 +702,12 @@ class _ProfileState extends State<Profile> {
                                   );
                                 }),
                             //   return ListTile(
-                            //     title: Text(userPosts[index]['title']),
+                            //     title: Text(post['title']),
                             //     subtitle:
-                            //         Text(userPosts[index]['description']),
-                            //     leading: userPosts[index]['image'] != null
+                            //         Text(post['description']),
+                            //     leading: post['image'] != null
                             //         ? Image.network(
-                            //             userPosts[index]['image'])
+                            //             post['image'])
                             //         : null,
                             //   );
                             // }),
@@ -841,7 +881,15 @@ class _ProfileState extends State<Profile> {
                       )),
                   ElevatedButton(
                       onPressed: () async {
-                        await post.reference.delete();
+                        await Supabase.instance.client
+                            .from('posts')
+                            .delete()
+                            .eq('id', post['id']);
+
+                        setState(() {
+                          _postsFuture = _getUserPosts();
+                        });
+
                         Navigator.of(context).pop(true);
                       },
                       child: const Text(

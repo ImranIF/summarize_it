@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,6 +8,7 @@ import 'package:summarize_it/components/customtextfield.dart';
 import 'package:summarize_it/pages/profile.dart';
 import 'package:summarize_it/screen/homescreen.dart';
 import 'package:widget_zoom/widget_zoom.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostScreen extends StatefulWidget {
   const PostScreen({super.key});
@@ -216,55 +214,104 @@ class _PostScreenState extends State<PostScreen> {
       isLoading = true;
     });
 
-    // insert image
+    // upload image if exists
+    String imageUrl = '';
     if (imageLocalPath != null) {
-      final String imageName = 'image_${DateTime.now().millisecondsSinceEpoch}';
-      const String imageDirectory = 'Posts/';
-      final photoRef =
-          FirebaseStorage.instance.ref().child('$imageDirectory$imageName');
-      final uploadTask = photoRef.putFile(File(imageLocalPath!));
-      final snapshot = await uploadTask.whenComplete(() => null);
-      imgUrl = await snapshot.ref.getDownloadURL();
-      print(imgUrl);
+      try {
+        final String imageName =
+            'image_${DateTime.now().millisecondsSinceEpoch}';
+        final String imagePath = 'posts/$imageName';
+
+        await Supabase.instance.client.storage
+            .from('post-images')
+            .upload(imagePath, File(imageLocalPath!));
+
+        imageUrl = Supabase.instance.client.storage
+            .from('post-images')
+            .getPublicUrl(imagePath);
+        print(imageUrl);
+      } catch (e) {
+        print('Error uploading image: $e');
+        // Continue without image if upload fails
+      }
     }
 
     // get user
-    final userEmail = FirebaseAuth.instance.currentUser?.email.toString();
-    final query = await FirebaseFirestore.instance
-        .collection('users')
-        .where('email', isEqualTo: userEmail)
-        .get();
-    final data = query.docs[0].data();
-    print('user: $data');
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    final userEmail = currentUser?.email;
 
-    // insert post
-    Map<String, dynamic> postData = {
-      'title': titleController.text,
-      'description': descriptionController.text,
-      'image': imageLocalPath != null ? imgUrl : null,
-      'userName': data['userName'],
-      'email': userEmail,
-      'timestamp': DateTime.now().millisecondsSinceEpoch,
-      'likeCount': 0,
-      'likes': likes,
-      'postId': '',
-    };
-    // To safely convert it back to DateTime
-    // DateTime fetchedTime = DateTime.fromMillisecondsSinceEpoch(data['time']);
+    if (userEmail == null) {
+      setState(() {
+        isLoading = false;
+      });
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: const Text('You must be logged in to create a post.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    try {
+      final userData = await Supabase.instance.client
+          .from('users')
+          .select()
+          .eq('email', userEmail!)
+          .single();
 
-    final postRef =
-        await FirebaseFirestore.instance.collection('posts').add(postData);
-    await postRef.update({'postId': postRef.id});
-    print(postRef.id);
-    // print(FirebaseFirestore.instance
-    //     .collection('posts')
-    //     .where('email', isEqualTo: userEmail)
-    //     .snapshots());
+      print('user: $userData');
 
-    // update user's postcount
-    await FirebaseFirestore.instance.collection('users').doc(userEmail).update({
-      'postCount': data['postCount'] + 1,
-    });
+      // insert post
+      Map<String, dynamic> postData = {
+        'title': titleController.text,
+        'description': descriptionController.text,
+        'image': imageLocalPath != null ? imageUrl : null,
+        'userName': userData['userName'],
+        'email': userEmail,
+        'user_id': currentUser?.id, // Add Supabase user ID
+        'timestamp': DateTime.now().toIso8601String(),
+        'likeCount': 0,
+        'likes': likes,
+      };
+
+      final postResponse = await Supabase.instance.client
+          .from('posts')
+          .insert(postData)
+          .select()
+          .single();
+
+      print('Post created with ID: ${postResponse['id']}');
+
+      // update user's postcount
+      await Supabase.instance.client.from('users').update(
+          {'postCount': userData['postCount'] + 1}).eq('email', userEmail);
+    } catch (e) {
+      print('Error creating post: $e');
+      setState(() {
+        isLoading = false;
+      });
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: Text('Failed to create post: $e'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

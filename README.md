@@ -139,9 +139,9 @@ TBA
 <div align="center">
 
 |              **Text Summarizer**              |               **Help**                |
-| :-------------------------------------------: | :-----------------------------------: | ---------------------------------------------------- | --- |
+| :-------------------------------------------: | :-----------------------------------: |
 | ![user-profile](./media/summarize-engine.png) | ![location-tracker](./media/help.png) |
-|                     <!--                      |  <kbd><img src="media/login"></kbd>   | <kbd><img src="media/registration-screen.png"></kbd> | --> |
+|                     <!--                      |  <kbd><img src="media/login"></kbd>   |
 
 </div>
 </details>
