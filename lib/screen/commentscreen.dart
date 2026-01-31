@@ -500,9 +500,17 @@ class _CommentScreenState extends State<CommentScreen> {
                   style: TextStyle(color: Colors.green),
                 )),
             ElevatedButton(
-                onPressed: () {
-                  document.reference.delete();
+                onPressed: () async {
+                  await Supabase.instance.client
+                      .from('comments')
+                      .delete()
+                      .eq('id', document['id']);
+
                   Navigator.of(context).pop(false);
+                  setState(() {
+                    comments.removeWhere(
+                        (comment) => comment['id'] == document['id']);
+                  });
                 },
                 child: Text(
                   'Yes',

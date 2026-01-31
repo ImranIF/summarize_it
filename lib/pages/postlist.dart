@@ -89,6 +89,7 @@ class PostListState extends State<PostList> {
   }
 
   Future<void> _toggleLike(Map<String, dynamic> post) async {
+    print('Toggling like for post: $post');
     final currentUser = Supabase.instance.client.auth.currentUser;
     if (currentUser?.email == null) return;
 
@@ -191,8 +192,15 @@ class PostListState extends State<PostList> {
                                       Row(
                                         children: [
                                           CircleAvatar(
-                                            child: Text(
-                                                post['userName']?[0] ?? 'U'),
+                                            backgroundImage: post[
+                                                        'userImage'] !=
+                                                    null
+                                                ? NetworkImage(
+                                                    post['userImage'])
+                                                : const AssetImage(
+                                                        'assets/placeholder.png')
+                                                    as ImageProvider,
+                                            radius: 16,
                                           ),
                                           const SizedBox(width: 8),
                                           Expanded(
@@ -203,17 +211,18 @@ class PostListState extends State<PostList> {
                                                 Text(
                                                   post['userName'] ??
                                                       'Unknown User',
-                                                  style:
-                                                      GoogleFonts.merriweather(
+                                                  style: GoogleFonts.georama(
+                                                    color: const Color.fromARGB(
+                                                        255, 35, 141, 123),
                                                     fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
                                                   ),
                                                 ),
                                                 Text(
                                                   _formatTimestamp(
                                                       post['timestamp']),
-                                                  style:
-                                                      GoogleFonts.merriweather(
-                                                    fontSize: 12,
+                                                  style: GoogleFonts.georama(
+                                                    fontSize: 10,
                                                     color: Colors.grey[600],
                                                   ),
                                                 ),
@@ -225,43 +234,56 @@ class PostListState extends State<PostList> {
                                       const SizedBox(height: 12),
                                       Text(
                                         post['title'] ?? '',
-                                        style: GoogleFonts.merriweather(
-                                          fontSize: 18,
+                                        style: GoogleFonts.georama(
+                                          fontSize: 15,
                                           fontWeight: FontWeight.bold,
+                                          color: const Color.fromARGB(
+                                              255, 35, 141, 123),
                                         ),
                                       ),
-                                      const SizedBox(height: 8),
+                                      const SizedBox(height: 6),
                                       Text(
                                         post['description'] ?? '',
-                                        style: GoogleFonts.merriweather(),
+                                        style: GoogleFonts.georama(
+                                            fontSize: 10,
+                                            color: const Color.fromARGB(
+                                                255, 25, 102, 89)),
                                       ),
                                       if (post['image'] != null) ...[
-                                        const SizedBox(height: 12),
-                                        WidgetZoom(
-                                          heroAnimationTag:
-                                              'post-${post['id']}',
-                                          zoomWidget: Image.network(
-                                            post['image'],
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Container(
-                                                height: 100,
-                                                color: Colors.grey[300],
-                                                child: const Icon(
-                                                    Icons.image_not_supported),
-                                              );
-                                            },
+                                        const SizedBox(height: 10),
+                                        Center(
+                                          child: WidgetZoom(
+                                            heroAnimationTag:
+                                                'post-${post['id']}',
+                                            zoomWidget: Image.network(
+                                              post['image'],
+                                              fit: BoxFit.cover,
+                                              scale: 5.0,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Container(
+                                                  height: 50,
+                                                  color: Colors.grey[300],
+                                                  child: const Icon(Icons
+                                                      .image_not_supported),
+                                                );
+                                              },
+                                            ),
                                           ),
-                                        ),
+                                        )
                                       ],
-                                      const SizedBox(height: 12),
+                                      const SizedBox(height: 6),
                                       Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
                                           IconButton(
                                             onPressed: () => _toggleLike(post),
                                             icon: Icon(
                                               Icons.favorite_rounded,
+                                              size: 10,
                                               color: isLiked
                                                   ? Colors.red
                                                   : Colors.black,
@@ -285,7 +307,8 @@ class PostListState extends State<PostList> {
                                               );
                                             },
                                             icon: const Icon(
-                                                Icons.comment_outlined),
+                                                Icons.comment_outlined,
+                                                size: 10),
                                           ),
                                         ],
                                       ),
