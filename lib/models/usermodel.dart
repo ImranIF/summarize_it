@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserModel {
   final String fullName;
   final String userName;
   final String address;
-  final Timestamp dateOfBirth;
+  final DateTime dateOfBirth;
   final String email;
   final String password;
   final String imageURL;
@@ -26,7 +26,7 @@ class UserModel {
       'fullName': fullName,
       'userName': userName,
       'address': address,
-      'dateOfBirth': dateOfBirth,
+      'dateOfBirth': dateOfBirth.toIso8601String(),
       'email': email,
       'password': password,
       'imageURL': imageURL,
@@ -36,22 +36,32 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      fullName: map['fullName'],
-      userName: map['userName'],
-      address: map['address'],
-      dateOfBirth:
-          map['dateOfBirth'] == '' ? Timestamp.now() : map['dateOfBirth'],
-      email: map['email'],
-      password: map['password'],
-      imageURL: map['imageURL'],
-      postCount: map['postCount'],
+      fullName: map['fullName'] ?? '',
+      userName: map['userName'] ?? '',
+      address: map['address'] ?? '',
+      dateOfBirth: map['dateOfBirth'] != null && map['dateOfBirth'] != ''
+          ? DateTime.parse(map['dateOfBirth'])
+          : DateTime.now(),
+      email: map['email'] ?? '',
+      password: map['password'] ?? '',
+      imageURL: map['imageURL'] ?? '',
+      postCount: map['postCount'] ?? 0,
     );
   }
 
   static Future<UserModel> getUserData(String email) async {
     print('----------------email: $email--------------------');
-    final doc =
-        await FirebaseFirestore.instance.collection('users').doc(email).get();
-    return UserModel.fromMap(doc.data() as Map<String, dynamic>);
+    try {
+      final response = await Supabase.instance.client
+          .from('users')
+          .select()
+          .eq('email', email)
+          .single();
+
+      return UserModel.fromMap(response);
+    } catch (e) {
+      print('Error fetching user data: $e');
+      throw Exception('Failed to fetch user data: $e');
+    }
   }
 }

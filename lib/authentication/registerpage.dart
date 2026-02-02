@@ -1,9 +1,5 @@
 import 'dart:io';
-import 'package:firebase_app_check/firebase_app_check.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,6 +15,7 @@ import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/customtextfield.dart';
 import 'package:summarize_it/models/usermodel.dart';
 import 'package:widget_zoom/widget_zoom.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -47,14 +44,76 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void signUp() async {
     if (_areAllFieldsFilled()) {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-              // create user
-              email: emailController.text.trim(),
-              password: passwordController.text.trim());
+      setState(() {
+        isLoading = true;
+      });
 
-      addUserDetails(userCredential.user!);
-      // add user details
+      try {
+        // Sign up with Supabase
+        final response = await AuthService().signUpWithEmailPassword(
+          emailController.text.trim(),
+          passwordController.text.trim(),
+        );
+
+        if (response?.user != null) {
+          // Add user details to the users table
+          await addUserDetails(response!.user!);
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Error', textAlign: TextAlign.center),
+              content: const Text('Registration failed. Please try again.'),
+              actions: [
+                Center(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'Okay',
+                      style: TextStyle(color: Color.fromARGB(255, 52, 110, 91)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      } catch (e) {
+        setState(() {
+          isLoading = false;
+        });
+        
+        String errorMessage = 'Registration failed. Please try again.';
+        if (e.toString().contains('User already registered')) {
+          errorMessage = 'Email already exists. Please use a different email.';
+        } else if (e.toString().contains('Password should be at least 6 characters')) {
+          errorMessage = 'Password must be at least 6 characters long.';
+        } else if (e.toString().contains('Unable to validate email address')) {
+          errorMessage = 'Please enter a valid email address.';
+        }
+        
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error', textAlign: TextAlign.center),
+            content: Text(errorMessage),
+            actions: [
+              Center(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Okay',
+                    style: TextStyle(color: Color.fromARGB(255, 52, 110, 91)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
     } else {
       showDialog(
         context: context,
@@ -98,24 +157,34 @@ class _RegisterPageState extends State<RegisterPage> {
         child: CircularProgressIndicator(),
       ),
     );
+    
     print('-----------------------------------------');
-    // date of birth to timestamp
-    Timestamp dob =
-        Timestamp.fromDate(DateTime.parse(dateOfBirthController.text));
+    // date of birth to ISO string for Supabase
+    DateTime dob = DateTime.parse(dateOfBirthController.text);
 
-    // insert image
-    final String imageName = 'image_${DateTime.now().millisecondsSinceEpoch}';
-    const String imageDirectory = 'Users/';
-    final photoRef =
-        FirebaseStorage.instance.ref().child('$imageDirectory$imageName');
-    final uploadTask = photoRef.putFile(File(imageLocalPath!));
-    final snapshot = await uploadTask.whenComplete(() => null);
-    imgUrl = await snapshot.ref.getDownloadURL();
+    String imageUrl = '';
+    // Upload image to Supabase Storage if image exists
+    if (imageLocalPath != null) {
+      try {
+        final String imageName = 'image_${DateTime.now().millisecondsSinceEpoch}';
+        final String imagePath = 'users/$imageName';
+        
+        await Supabase.instance.client.storage
+            .from('user-images')
+            .upload(imagePath, File(imageLocalPath!));
+            
+        imageUrl = Supabase.instance.client.storage
+            .from('user-images')
+            .getPublicUrl(imagePath);
+      } catch (e) {
+        print('Error uploading image: $e');
+        // Continue without image if upload fails
+      }
+    }
 
     print('-----------------------------------------baka------------------');
 
-    // add user details
-
+    // add user details to Supabase users table
     UserModel userModel = UserModel(
       fullName: fullNameController.text.trim(),
       userName: userNameController.text.trim(),
@@ -123,54 +192,69 @@ class _RegisterPageState extends State<RegisterPage> {
       dateOfBirth: dob,
       email: emailController.text.trim(),
       password: passwordController.text.trim(),
-      imageURL: imgUrl,
+      imageURL: imageUrl,
       postCount: 0,
     );
 
     print('-----------------------------------------sussy------------');
 
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.email)
-        .set(userModel.toMap());
+    try {
+      await Supabase.instance.client
+          .from('users')
+          .insert({
+        'id': user.id,
+        'fullName': userModel.fullName,
+        'userName': userModel.userName,
+        'address': userModel.address,
+        'dateOfBirth': userModel.dateOfBirth.toIso8601String(),
+        'email': userModel.email,
+        'password': userModel.password,
+        'imageURL': userModel.imageURL,
+        'postCount': userModel.postCount,
+      });
+      
+      insertIntoGraphql(userModel);
 
-    insertIntoGraphql(userModel);
+      Navigator.pop(context);
 
-    // Map<String, dynamic> userData = {
-    //   'fullName': fullNameController.text.trim(),
-    //   'userName': userNameController.text.trim(),
-    //   'address': addressController.text.trim(),
-    //   'dateOfBirth': dob,
-    //   'email': emailController.text.trim(),
-    //   'password': passwordController.text.trim(),
-    //   'imageURL': imgUrl,
-    //   'postCount': 0,
-    // };
-
-    // await FirebaseFirestore.instance
-    //     .collection('users')
-    //     .doc(user.email)
-    //     .set(userData);
-
-    Navigator.pop(context);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('User Registered!', textAlign: TextAlign.center),
-        content: const Text('You have successfully created your account!'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => const LoginPage(),
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('User Registered!', textAlign: TextAlign.center),
+          content: const Text('You have successfully created your account! Please check your email to verify your account.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const LoginPage(),
+                ),
               ),
+              child: const Text('Okay'),
             ),
-            child: const Text('Okay'),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    } catch (e) {
+      print('Error inserting user to Supabase: $e');
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error', textAlign: TextAlign.center),
+          content: Text('Failed to create user profile: $e'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Okay'),
+            ),
+          ],
+        ),
+      );
+      
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   bool _areAllFieldsFilled() {
@@ -600,18 +684,25 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   checkUsernameIsUnique(String username) async {
-    QuerySnapshot querySnapshot;
     setState(() {
       // loading = true;
     });
-    querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('userName', isEqualTo: username)
-        .get();
+    
+    try {
+      final response = await Supabase.instance.client
+          .from('users')
+          .select()
+          .eq('userName', username);
 
-    setState(() {
-      uniqueUser = querySnapshot.docs.isNotEmpty;
-    });
+      setState(() {
+        uniqueUser = response.isNotEmpty;
+      });
+    } catch (e) {
+      print('Error checking username uniqueness: $e');
+      setState(() {
+        uniqueUser = false;
+      });
+    }
 
     setState(() {
       // loading = false;

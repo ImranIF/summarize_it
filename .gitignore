@@ -32,6 +32,9 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Environment variables
+.env
+
 # Symbolication related
 app.*.symbols
 
@@ -42,3 +45,20 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+.test_migration.md
+
+# Supabase migration related files
+COMPLETE_SUPABASE_MIGRATION.md
+FIREBASE_TO_SUPABASE_MIGRATION.md
+IMMEDIATE_FIX_RLS.sql
+SUPABASE_KEEP_ALIVE_SETUP.md
+SUPABASE_SETUP_STEPS.md
+fix_likes_rls_policies.sql
+fix_rls_policies.sql
+lib/authentication/auth_service.dart.bak
+lib/authentication/auth_service.dart.firebase.bak
+lib/pages/postlist.dart.bak
+supabase-keep-alive.js
+supabase_setup.sql
+test_migration.md

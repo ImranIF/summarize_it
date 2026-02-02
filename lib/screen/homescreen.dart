@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +14,7 @@ import 'package:summarize_it/pages/profile.dart';
 import 'package:summarize_it/pages/summarizer.dart';
 import 'package:summarize_it/provider/userprovider.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -82,11 +81,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void signUserOut() async {
-    // print('---------------------------${user!.email}');
-    // make firebase email verified false so i must verify again
-
-    await GoogleSignIn().signOut();
-    await FirebaseAuth.instance.signOut();
+    await GoogleSignIn.instance.signOut();
+    await Supabase.instance.client.auth.signOut();
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const SplashScreen()));
   }

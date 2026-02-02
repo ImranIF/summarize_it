@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:summarize_it/models/usermodel.dart';
 import 'package:summarize_it/provider/userprovider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppRating extends StatefulWidget {
   const AppRating({super.key});
@@ -150,64 +150,81 @@ class _AppRatingState extends State<AppRating> {
   }
 
   Future<void> getCombinedRating() async {
-    final documents =
-        await FirebaseFirestore.instance.collection('ratings').get();
-    combinedRating = 0.0;
-    for (var doc in documents.docs) {
-      combinedRating += doc['rating'];
+    try {
+      final response = await Supabase.instance.client
+          .from('ratings')
+          .select('rating');
+
+      if (response.isNotEmpty) {
+        double total = 0.0;
+        for (var rating in response) {
+          total += (rating['rating'] as num).toDouble();
+        }
+        setState(() {
+          combinedRating = total / response.length;
+        });
+      } else {
+        setState(() {
+          combinedRating = 0.0;
+        });
+      }
+      print('combinedRating: $combinedRating');
+    } catch (e) {
+      print('Error getting combined rating: $e');
     }
-    setState(() {
-      combinedRating = combinedRating / documents.docs.length;
-    });
-    print('combinedRating: $combinedRating');
-    // FirebaseFirestore.instance
-    //     .collection('ratings')
-    //     .get()
-    //     .then((QuerySnapshot querySnapshot) {
-    //   for (var doc in querySnapshot.docs) {
-    //     combinedRating += doc['rating'];
-    //   }
-    //   combinedRating = combinedRating / querySnapshot.docs.length;
-    //   return combinedRating;
-    // });
   }
 
   Future<void> postRating() async {
     setState(() {
       isLoading = true;
     });
-    final ratingData = await FirebaseFirestore.instance
-        .collection('ratings')
-        .where('userName', isEqualTo: userModel!.userName)
-        .get();
-    if (ratingData.docs.isEmpty) {
-      await FirebaseFirestore.instance.collection('ratings').add({
-        'rating': rating,
-        'userName': userModel!.userName,
-      });
-    } else {
-      await FirebaseFirestore.instance
-          .collection('ratings')
-          .doc(ratingData.docs[0].id)
-          .update({
-        'rating': rating,
-      });
+    
+    try {
+      final existingRating = await Supabase.instance.client
+          .from('ratings')
+          .select()
+          .eq('userName', userModel!.userName)
+          .maybeSingle();
+
+      if (existingRating == null) {
+        final currentUser = Supabase.instance.client.auth.currentUser;
+        await Supabase.instance.client.from('ratings').insert({
+          'rating': rating,
+          'userName': userModel!.userName,
+          'user_id': currentUser?.id, // Add Supabase user ID
+        });
+      } else {
+        await Supabase.instance.client
+            .from('ratings')
+            .update({'rating': rating})
+            .eq('userName', userModel!.userName);
+      }
+      
+      getCombinedRating();
+    } catch (e) {
+      print('Error posting rating: $e');
     }
-    await getCombinedRating();
+    
     setState(() {
       isLoading = false;
     });
   }
 
   Future<void> getRating() async {
-    final ratingData = await FirebaseFirestore.instance
-        .collection('ratings')
-        .where('userName', isEqualTo: userModel!.userName)
-        .get();
-    if (ratingData.docs.isNotEmpty) {
-      setState(() {
-        rating = ratingData.docs[0]['rating'];
-      });
+    try {
+      final response = await Supabase.instance.client
+          .from('ratings')
+          .select()
+          .eq('userName', userModel!.userName)
+          .maybeSingle();
+
+      if (response != null) {
+        setState(() {
+          rating = (response['rating'] as num).toDouble();
+        });
+      }
+    } catch (e) {
+      print('Error getting user rating: $e');
     }
   }
 }
