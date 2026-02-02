@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
@@ -18,15 +19,68 @@ class Summarizer extends StatefulWidget {
 class _SummarizerState extends State<Summarizer> {
   final TextEditingController inputController = TextEditingController();
   List<String> modelUris = [
-    "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
-    "https://api-inference.huggingface.co/models/sshleifer/distilbart-cnn-12-6"
+    "https://router.huggingface.co/hf-inference/models/facebook/bart-large-cnn",
+    "https://router.huggingface.co/hf-inference/models/sshleifer/distilbart-cnn-12-6"
   ];
-  List<String> tokens = [
-    "Bearer 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",
-    "Bearer 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"
-  ];
+  String bearerToken = "Bearer ${dotenv.env['BEARER_TOKEN']}";
 
   bool isLoading = false;
+
+  Widget summarizeButton() {
+    return Material(
+      borderRadius: BorderRadius.circular(24.0),
+      child: InkWell(
+        onTap: () => summarizeText(context),
+        customBorder:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.0)),
+        child: Ink(
+          padding: const EdgeInsets.only(
+              top: 12.0, bottom: 12.0, left: 18.0, right: 18.0),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24.0),
+              gradient: const LinearGradient(
+                colors: [
+                  Color.fromARGB(255, 111, 199, 158),
+                  Color.fromARGB(255, 101, 182, 144),
+                  // Colors.lightBlueAccent[500]!,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )),
+          child: isLoading
+              ? const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Summarizing your text. Please wait...',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 100, 52, 34),
+                      ),
+                    ),
+                    SizedBox(width: 5),
+                    SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                          backgroundColor: Colors.lightBlueAccent,
+                          strokeWidth: 3,
+                        ))
+                  ],
+                )
+              : const Text(
+                  'Summarize Text',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 100, 52, 34),
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,66 +165,9 @@ class _SummarizerState extends State<Summarizer> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Material(
-                          borderRadius: BorderRadius.circular(24.0),
-                          child: InkWell(
-                            onTap: () => summarizeText(context),
-                            customBorder: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24.0)),
-                            child: Ink(
-                              padding: const EdgeInsets.only(
-                                  top: 12.0,
-                                  bottom: 12.0,
-                                  left: 18.0,
-                                  right: 18.0),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(24.0),
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color.fromARGB(255, 111, 199, 158),
-                                      Color.fromARGB(255, 101, 182, 144),
-                                      // Colors.lightBlueAccent[500]!,
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  )),
-                              child: isLoading
-                                  ? const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Summarizing your text. Please wait...',
-                                          style: TextStyle(
-                                            color: Color.fromARGB(
-                                                255, 100, 52, 34),
-                                          ),
-                                        ),
-                                        SizedBox(width: 5),
-                                        SizedBox(
-                                            height: 20,
-                                            width: 20,
-                                            child: CircularProgressIndicator(
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
-                                                Colors.white,
-                                              ),
-                                              backgroundColor:
-                                                  Colors.lightBlueAccent,
-                                              strokeWidth: 3,
-                                            ))
-                                      ],
-                                    )
-                                  : const Text(
-                                      'Summarize Text',
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 100, 52, 34),
-                                      ),
-                                    ),
-                            ),
-                          ),
-                        ),
+                        // Summarize Button
+                        summarizeButton(),
+
                         const SizedBox(height: 10),
                         Consumer<TextSummarizationModel>(
                           builder: (context, model, child) {
@@ -195,16 +192,7 @@ class _SummarizerState extends State<Summarizer> {
                                             color: const Color.fromARGB(
                                                 255, 70, 69, 69),
                                           ),
-                                        )
-                                        // child: Text(
-                                        // model.outputText,
-                                        // style: TextStyle(
-                                        //   color: Color.fromARGB(255, 100, 52, 34),
-                                        //   fontSize: 14,
-                                        //   fontWeight: FontWeight.bold,
-                                        // ),
-                                        // ),
-                                        ),
+                                        )),
                                   )
                                 : const SizedBox();
                           },
@@ -223,12 +211,14 @@ class _SummarizerState extends State<Summarizer> {
     });
 
     final model = Provider.of<TextSummarizationModel>(context, listen: false);
+    print(
+        'Running summarizeText with input: ${inputController.text} with token: $bearerToken');
 
     for (int i = 0; i < modelUris.length; i++) {
       final response = await http.post(
         Uri.parse(modelUris[i]),
         headers: {
-          "Authorization": tokens[i], // Replace with your actual API token
+          "Authorization": bearerToken, // Replace with your actual API token
           "Content-Type": "application/json; charset=UTF-8",
         },
         body: utf8.encode(jsonEncode({"inputs": inputController.text})),

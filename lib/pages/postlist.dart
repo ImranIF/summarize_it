@@ -339,14 +339,22 @@ class PostListState extends State<PostList> {
           ElevatedButton(
             onPressed:
                 _currentPage > 1 ? () => setState(() => _currentPage--) : null,
-            child: const Text('Previous'),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 111, 199, 158)),
+            child: const Text(
+              'Previous',
+            ),
           ),
           Text('Page $_currentPage of $totalPages'),
           ElevatedButton(
             onPressed: _currentPage < totalPages
                 ? () => setState(() => _currentPage++)
                 : null,
-            child: const Text('Next'),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 111, 199, 158)),
+            child: const Text(
+              'Next',
+            ),
           ),
         ],
       ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:summarize_it/authentication/loginpage.dart';
 import 'package:summarize_it/authentication/registerpage.dart';
-import 'package:summarize_it/components/sessionmanager.dart';
 import 'package:summarize_it/provider/userprovider.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,11 +10,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Supabase
+  // Load environment variables
+  await dotenv.load();
+
   await Supabase.initialize(
-    url: 'https://iwcngaodjxkaitmvlzsc.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3Y25nYW9kanhrYWl0bXZsenNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNDAyMTQsImV4cCI6MjA3MTYxNjIxNH0.LfXMWVHPc38iVcXIrN9yw4mqU5adYOIBGsqTKGC1RDY',
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
 
   runApp(MultiProvider(providers: [
@@ -45,51 +46,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// class MyHomePage extends StatefulWidget {
-//   const MyHomePage({super.key, required this.title});
-
-//   final String title;
-
-//   @override
-//   State<MyHomePage> createState() => _MyHomePageState();
-// }
-
-// class _MyHomePageState extends State<MyHomePage> {
-//   int _counter = 0;
-
-//   void _incrementCounter() {
-//     setState(() {
-//       _counter++;
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-//         title: Text(widget.title),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: <Widget>[
-//             const Text(
-//               'You have pushed the button this many times:',
-//             ),
-//             Text(
-//               '$_counter',
-//               style: Theme.of(context).textTheme.headlineMedium,
-//             ),
-//           ],
-//         ),
-//       ),
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: _incrementCounter,
-//         tooltip: 'Increment',
-//         child: const Icon(Icons.add),
-//       ),
-//     );
-//   }
-// }

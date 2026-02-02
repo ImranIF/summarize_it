@@ -28,7 +28,6 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   bool isLoading = false;
-  // Future<List<Map<String, dynamic>>>? _postsFuture;
   late Stream<Map<String, dynamic>> _userStream;
   late Stream<List<Map<String, dynamic>>> _postsStream;
 
@@ -141,10 +140,52 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  Widget getAllUserInfo() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Material(
+          borderRadius: BorderRadius.circular(24.0),
+          child: InkWell(
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const GraphQL())),
+            customBorder: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)),
+            child: Ink(
+                padding: const EdgeInsets.only(
+                    top: 10.0, bottom: 10.0, left: 16.0, right: 16.0),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24.0),
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 111, 199, 158),
+                        Color.fromARGB(255, 101, 182, 144),
+                        // Colors.lightBlueAccent[500]!,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'All User Info',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 100, 52, 34),
+                      ),
+                    ),
+                  ],
+                )),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget buildHeader(User user) {
     return Column(
       children: [
-        // Move your "Geo Location", Logout Row,
         Row(
           children: [
             Container(
@@ -304,53 +345,9 @@ class _ProfileState extends State<Profile> {
                       ],
                     ),
 
-                    const SizedBox(height: 10),
+                    // const SizedBox(height: 10),
                     // all user info button
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Material(
-                          borderRadius: BorderRadius.circular(24.0),
-                          child: InkWell(
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const GraphQL())),
-                            customBorder: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0)),
-                            child: Ink(
-                                padding: const EdgeInsets.only(
-                                    top: 10.0,
-                                    bottom: 10.0,
-                                    left: 16.0,
-                                    right: 16.0),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(24.0),
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color.fromARGB(255, 111, 199, 158),
-                                        Color.fromARGB(255, 101, 182, 144),
-                                        // Colors.lightBlueAccent[500]!,
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    )),
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'All User Info',
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 100, 52, 34),
-                                      ),
-                                    ),
-                                  ],
-                                )),
-                          ),
-                        ),
-                      ],
-                    ),
+                    // getAllUserInfo(),
 
                     const SizedBox(height: 10),
 
@@ -437,7 +434,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildPostContainer(
+  Widget buildPostContainer(
       Map<String, dynamic> post, bool isLiked, String formattedPostTime) {
     return Container(
       key: ValueKey(post['id']),
@@ -628,7 +625,7 @@ class _ProfileState extends State<Profile> {
                                               ?.contains(user.email) ==
                                           true;
                                       //
-                                      return _buildPostContainer(
+                                      return buildPostContainer(
                                           post, isLiked, formattedPostTime);
                                     }),
                               );
@@ -806,6 +803,15 @@ class _ProfileState extends State<Profile> {
                             .from('posts')
                             .delete()
                             .eq('id', post['id']);
+
+                        setState(() {
+                          _postsStream = Supabase.instance.client
+                              .from('posts')
+                              .stream(primaryKey: ['id'])
+                              .eq('user_id',
+                                  Supabase.instance.client.auth.currentUser!.id)
+                              .order('timestamp', ascending: false);
+                        });
 
                         Navigator.of(context).pop();
                       },

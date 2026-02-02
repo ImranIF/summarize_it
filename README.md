@@ -160,8 +160,9 @@ TBA
 
 <details>
 <summary> v1.0.0 </summary>
-
 - Initial Launch
+<summary> v1.0.7 </summary>
+- Migrated to Supabase
 </details>
 
 ## Contributors
