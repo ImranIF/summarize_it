@@ -160,12 +160,12 @@ TBA
 
 <details>
 <summary> v1.0.0 </summary>
-- Initial Launch
+- Initial Launch with Firebase backend
+</details>
+<details>
 <summary> v1.0.7 </summary>
 - Migrated to Supabase
 </details>
-
-## Contributors
 
 ## Acknowledgement
 

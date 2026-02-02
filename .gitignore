@@ -62,3 +62,6 @@ lib/pages/postlist.dart.bak
 supabase-keep-alive.js
 supabase_setup.sql
 test_migration.md
+
+# Exclude all log files except activity.log
+!activity.log
