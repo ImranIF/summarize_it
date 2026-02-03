@@ -84,121 +84,115 @@ class _SummarizerState extends State<Summarizer> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => TextSummarizationModel(),
-      builder: (context, _) => Scaffold(
-        body: Container(
-          height: double.infinity,
-          width: double.infinity,
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 162, 236, 169),
-              Color.fromARGB(255, 92, 175, 170),
-              // Color.fromARGB(10, 52, 59, 53),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          )),
-          child: SafeArea(
-            maintainBottomViewPadding: true,
-            child: SingleChildScrollView(
-              child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                      // crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: FloatingActionButton.small(
-                              backgroundColor:
-                                  Color.fromARGB(255, 162, 236, 169),
-                              onPressed: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Help())),
-                              child: const Icon(
-                                Icons.help_outline_outlined,
-                                color: Color.fromARGB(255, 76, 175, 162),
-                              )),
-                        ),
-                        Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Summarize Engine',
-                            style: GoogleFonts.cormorantSc().copyWith(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5,
-                              color: const Color.fromARGB(255, 101, 182, 144),
-                            ),
+    return Scaffold(
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        decoration: const BoxDecoration(
+            gradient: LinearGradient(
+          colors: [
+            Color.fromARGB(255, 162, 236, 169),
+            Color.fromARGB(255, 92, 175, 170),
+            // Color.fromARGB(10, 52, 59, 53),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        )),
+        child: SafeArea(
+          maintainBottomViewPadding: true,
+          child: SingleChildScrollView(
+            child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                    // crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: FloatingActionButton.small(
+                            backgroundColor: Color.fromARGB(255, 162, 236, 169),
+                            onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Help())),
+                            child: const Icon(
+                              Icons.help_outline_outlined,
+                              color: Color.fromARGB(255, 76, 175, 162),
+                            )),
+                      ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Summarize Engine',
+                          style: GoogleFonts.cormorantSc().copyWith(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                            color: const Color.fromARGB(255, 101, 182, 144),
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        TextField(
-                          textAlign: TextAlign.left,
-                          controller: inputController,
-                          maxLines: 8,
-                          decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 100, 52, 34),
-                              ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        textAlign: TextAlign.left,
+                        controller: inputController,
+                        maxLines: 8,
+                        decoration: InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 100, 52, 34),
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 34, 96, 100),
-                              ),
-                            ),
-                            floatingLabelAlignment:
-                                FloatingLabelAlignment.center,
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            labelText: "Enter text to summarize",
-                            labelStyle: TextStyle(
-                              color: Colors.brown.shade800,
-                            ),
-                            fillColor: const Color.fromARGB(255, 177, 226, 211)
-                                .withOpacity(0.5),
-                            filled: true,
                           ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 34, 96, 100),
+                            ),
+                          ),
+                          floatingLabelAlignment: FloatingLabelAlignment.center,
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          labelText: "Enter text to summarize",
+                          labelStyle: TextStyle(
+                            color: Colors.brown.shade800,
+                          ),
+                          fillColor: const Color.fromARGB(255, 177, 226, 211)
+                              .withOpacity(0.5),
+                          filled: true,
                         ),
-                        const SizedBox(height: 10),
-                        // Summarize Button
-                        summarizeButton(),
+                      ),
+                      const SizedBox(height: 10),
+                      // Summarize Button
+                      summarizeButton(),
 
-                        const SizedBox(height: 10),
-                        Consumer<TextSummarizationModel>(
-                          builder: (context, model, child) {
-                            return model.outputText.isNotEmpty
-                                ? GestureDetector(
-                                    onTap: () async {
-                                      await Clipboard.setData(
-                                        ClipboardData(text: model.outputText),
-                                      );
-                                    },
-                                    child: Container(
-                                        padding: const EdgeInsets.all(16),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                      const SizedBox(height: 10),
+                      Consumer<TextSummarizationModel>(
+                        builder: (context, model, child) {
+                          return model.outputText.isNotEmpty
+                              ? GestureDetector(
+                                  onTap: () async {
+                                    await Clipboard.setData(
+                                      ClipboardData(text: model.outputText),
+                                    );
+                                  },
+                                  child: Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        model.outputText,
+                                        style: GoogleFonts.georama(
+                                          fontSize: 14,
+                                          color: const Color.fromARGB(
+                                              255, 70, 69, 69),
                                         ),
-                                        child: Text(
-                                          model.outputText,
-                                          style: GoogleFonts.georama(
-                                            fontSize: 14,
-                                            color: const Color.fromARGB(
-                                                255, 70, 69, 69),
-                                          ),
-                                        )),
-                                  )
-                                : const SizedBox();
-                          },
-                        )
-                      ])),
-            ),
+                                      )),
+                                )
+                              : const SizedBox();
+                        },
+                      )
+                    ])),
           ),
         ),
       ),

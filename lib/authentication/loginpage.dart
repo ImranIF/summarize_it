@@ -43,9 +43,11 @@ class _LoginPageState extends State<LoginPage> {
           passwordController.text.trim(),
         );
 
-        setState(() {
-          isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+          });
+        }
 
         if (response?.user != null) {
           // Check if email is verified (Supabase handles this automatically)
@@ -55,12 +57,14 @@ class _LoginPageState extends State<LoginPage> {
           );
         }
       } catch (e) {
-        setState(() {
-          isLoading = false;
-        });
-        
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+          });
+        }
+
         print('Login error: $e');
-        
+
         // Handle different types of errors
         String errorMessage = 'Login failed. Please check your credentials.';
         if (e.toString().contains('Invalid login credentials')) {
@@ -70,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
         } else if (e.toString().contains('Too many requests')) {
           errorMessage = 'Too many attempts. Please try again later.';
         }
-        
+
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -344,10 +348,13 @@ class _LoginPageState extends State<LoginPage> {
                           });
 
                           try {
-                            final response = await AuthService().signInWithGoogle();
-                            setState(() {
-                              isLoading = false;
-                            });
+                            final response =
+                                await AuthService().signInWithGoogle();
+                            if (mounted) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
 
                             if (response?.user != null) {
                               Navigator.pushReplacement(
@@ -358,16 +365,19 @@ class _LoginPageState extends State<LoginPage> {
                               );
                             }
                           } catch (e) {
-                            setState(() {
-                              isLoading = false;
-                            });
+                            if (mounted) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
                             print('Google sign in error: $e');
-                            
+
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
                                 title: const Text('Error'),
-                                content: Text('Google sign in failed: ${e.toString()}'),
+                                content: Text(
+                                    'Google sign in failed: ${e.toString()}'),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),
@@ -398,10 +408,13 @@ class _LoginPageState extends State<LoginPage> {
                           });
 
                           try {
-                            final response = await AuthService().signInWithFacebook(context);
-                            setState(() {
-                              isLoading = false;
-                            });
+                            final response =
+                                await AuthService().signInWithFacebook(context);
+                            if (mounted) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
 
                             if (response?.user != null) {
                               Navigator.pushReplacement(
@@ -412,16 +425,19 @@ class _LoginPageState extends State<LoginPage> {
                               );
                             }
                           } catch (e) {
-                            setState(() {
-                              isLoading = false;
-                            });
+                            if (mounted) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
                             print('Facebook sign in error: $e');
-                            
+
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
                                 title: const Text('Error'),
-                                content: Text('Facebook sign in failed: ${e.toString()}'),
+                                content: Text(
+                                    'Facebook sign in failed: ${e.toString()}'),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),
