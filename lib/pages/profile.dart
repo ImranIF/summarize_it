@@ -3,8 +3,10 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:summarize_it/components/sessionmanager.dart';
+import 'package:summarize_it/models/textsummarizationmodel.dart';
 
 import 'package:summarize_it/pages/graphql.dart';
 import 'package:summarize_it/pages/rating.dart';
@@ -82,7 +84,6 @@ class _ProfileState extends State<Profile> {
 
   // toggle like status
   Future<void> _toggleLike(Map<String, dynamic> post) async {
-    print('Toggling like for post: ${post['id']}');
     final currentUser = Supabase.instance.client.auth.currentUser;
     if (currentUser?.email == null || post['id'] == null) return;
 
@@ -108,6 +109,10 @@ class _ProfileState extends State<Profile> {
   }
 
   void signUserOut() async {
+    // Clear output text on logout
+    final model = Provider.of<TextSummarizationModel>(context, listen: false);
+    model.setOutputText('');
+
     bool sessionLogOut = await SessionManager.logOut(context);
 
     if (sessionLogOut) {
@@ -130,8 +135,10 @@ class _ProfileState extends State<Profile> {
       await Supabase.instance.client.auth.signOut();
 
       Future.delayed(const Duration(seconds: 2), () async {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const SplashScreen()));
+        if (mounted) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const SplashScreen()));
+        }
       });
     }
   }

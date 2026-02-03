@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:summarize_it/models/usermodel.dart';
+import 'package:summarize_it/models/textsummarizationmodel.dart';
 import 'package:summarize_it/pages/aboutus.dart';
 import 'package:summarize_it/pages/graphql.dart';
 import 'package:summarize_it/pages/homepage.dart';
@@ -69,18 +70,21 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: (index) => setState(() {
                   print(
                       '----------------userModel: ${userModel}--------------------');
-                  // showDialog(
-                  //   context: context,
-                  //   builder: (context) => const Center(
-                  //     child: CircularProgressIndicator(),
-                  //   ),
-                  // );
-                  // Navigator.pop(context);
+                  // Clear output text when switching pages
+                  if (selectedPage != index) {
+                    final model = Provider.of<TextSummarizationModel>(context,
+                        listen: false);
+                    model.setOutputText('');
+                  }
                   selectedPage = index;
                 })));
   }
 
   void signUserOut() async {
+    // Clear output text on logout
+    final model = Provider.of<TextSummarizationModel>(context, listen: false);
+    model.setOutputText('');
+
     await GoogleSignIn.instance.signOut();
     await Supabase.instance.client.auth.signOut();
     Navigator.pushReplacement(

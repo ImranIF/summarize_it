@@ -127,10 +127,6 @@ class _LoginPageState extends State<LoginPage> {
     timer.cancel();
   }
 
-  Future<void> signIn(BuildContext context) async {
-    // This method is replaced by signUserIn() above
-  }
-
   void wrongInputCredentialMessage() {
     showDialog(
         context: context,
@@ -291,26 +287,26 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: 15.0,
                         color: const Color.fromARGB(255, 16, 58, 40)),
                   ),
-                  const SizedBox(height: 5),
-                  CheckboxListTile(
-                    contentPadding: const EdgeInsets.all(0),
-                    visualDensity: VisualDensity.compact,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    title: Text(
-                      'Forgot Password? ',
-                      style: GoogleFonts.merriweather(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                    value: forgotPassword,
-                    onChanged: (newValue) {
-                      setState(() {
-                        forgotPassword = newValue!;
-                      });
-                    },
-                  ),
+                  // const SizedBox(height: 5),
+                  // CheckboxListTile(
+                  //   contentPadding: const EdgeInsets.all(0),
+                  //   visualDensity: VisualDensity.compact,
+                  //   controlAffinity: ListTileControlAffinity.leading,
+                  //   title: Text(
+                  //     'Forgot Password? ',
+                  //     style: GoogleFonts.merriweather(
+                  //       fontSize: 12,
+                  //       fontWeight: FontWeight.bold,
+                  //       color: Colors.grey.shade800,
+                  //     ),
+                  //   ),
+                  //   value: forgotPassword,
+                  //   onChanged: (newValue) {
+                  //     setState(() {
+                  //       forgotPassword = newValue!;
+                  //     });
+                  //   },
+                  // ),
                   SizedBox(
                     child: Row(children: [
                       SizedBox(
@@ -356,7 +352,7 @@ class _LoginPageState extends State<LoginPage> {
                               });
                             }
 
-                            if (response?.user != null) {
+                            if (response?.user != null && mounted) {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
@@ -372,20 +368,22 @@ class _LoginPageState extends State<LoginPage> {
                             }
                             print('Google sign in error: $e');
 
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Error'),
-                                content: Text(
-                                    'Google sign in failed: ${e.toString()}'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('OK'),
-                                  ),
-                                ],
-                              ),
-                            );
+                            if (mounted) {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Error'),
+                                  content: Text(
+                                      'Google sign in failed: ${e.toString()}'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
                           }
                         },
                         hpadding: 15,
