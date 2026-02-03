@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:summarize_it/authentication/loginpage.dart';
 import 'package:summarize_it/authentication/registerpage.dart';
+import 'package:summarize_it/models/textsummarizationmodel.dart';
 import 'package:summarize_it/provider/userprovider.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -20,6 +21,7 @@ void main() async {
 
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => UserProvider()),
+    ChangeNotifierProvider(create: (context) => TextSummarizationModel()),
   ], child: const MyApp()));
 }
 

@@ -1,14 +1,10 @@
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/sessionmanager.dart';
-import 'package:summarize_it/components/textbox.dart';
 
 import 'package:summarize_it/pages/graphql.dart';
 import 'package:summarize_it/pages/rating.dart';
@@ -170,7 +166,7 @@ class _ProfileState extends State<Profile> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'All User Info',
+                      'All User Details',
                       style: TextStyle(
                         color: Color.fromARGB(255, 100, 52, 34),
                       ),

@@ -9,6 +9,7 @@
         android:name="${applicationName}"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true"
         android:allowNativeHeapPointerTagging="false">
         <activity
             android:name=".MainActivity"
