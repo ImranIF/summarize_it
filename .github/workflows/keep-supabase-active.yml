@@ -21,34 +21,39 @@ jobs:
         run: |
           echo "Pinging Supabase project to keep it active..."
 
-          # Method 1: Simple REST API call to check if service is alive
-          response=$(curl -s -w "HTTP_STATUS:%{http_code}" \
-            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            -H "Content-Type: application/json" \
-            "$SUPABASE_URL/rest/v1/users?select=id&limit=1")
+          for i in {1..15}; do
+            echo "Ping $i/15 at $(date)..."
 
-          http_status=$(echo $response | sed -n 's/.*HTTP_STATUS:\([0-9]*\)$/\1/p')
+            # Method 1: Simple REST API call to check if service is alive
+            response=$(curl -s -w "HTTP_STATUS:%{http_code}" \
+              -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+              -H "apikey: $SUPABASE_ANON_KEY" \
+              -H "Content-Type: application/json" \
+              "$SUPABASE_URL/rest/v1/users?select=id&limit=1")
 
-          if [ "$http_status" -eq 200 ] || [ "$http_status" -eq 401 ] || [ "$http_status" -eq 403 ]; then
-            echo "Supabase project is active! HTTP Status: $http_status"
-            echo "Response: $(echo $response | sed 's/HTTP_STATUS:.*//')"
-          else
-            echo "Unexpected response. HTTP Status: $http_status"
-            echo "Response: $(echo $response | sed 's/HTTP_STATUS:.*//')"
-          fi
+            http_status=$(echo $response | sed -n 's/.*HTTP_STATUS:\([0-9]*\)$/\1/p')
 
-          # Method 2: Additional ping to different endpoint for redundancy
-          echo "Sending additional ping to auth endpoint..."
-          auth_response=$(curl -s -w "HTTP_STATUS:%{http_code}" \
-            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            "$SUPABASE_URL/auth/v1/settings")
-            
-          auth_status=$(echo $auth_response | sed -n 's/.*HTTP_STATUS:\([0-9]*\)$/\1/p')
-          echo "Auth endpoint status: $auth_status"
+            if [ "$http_status" -eq 200 ] || [ "$http_status" -eq 401 ] || [ "$http_status" -eq 403 ]; then
+              echo "Supabase project is active! HTTP Status: $http_status"
+            else
+              echo "Unexpected response. HTTP Status: $http_status"
+            fi
 
-          echo "Ping completed at $(date)"
+            # Method 2: Additional ping to different endpoint for redundancy
+            auth_response=$(curl -s -w "HTTP_STATUS:%{http_code}" \
+              -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+              -H "apikey: $SUPABASE_ANON_KEY" \
+              "$SUPABASE_URL/auth/v1/settings")
+              
+            auth_status=$(echo $auth_response | sed -n 's/.*HTTP_STATUS:\([0-9]*\)$/\1/p')
+            echo "Auth endpoint status: $auth_status"
+
+            if [ $i -lt 15 ]; then
+              sleep 2
+            fi
+          done
+
+          echo "All 15 pings completed at $(date)"
 
       - name: Log Activity
         run: |

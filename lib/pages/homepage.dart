@@ -1,6 +1,8 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:summarize_it/components/custombutton.dart';
+import 'package:summarize_it/models/textsummarizationmodel.dart';
 import 'package:summarize_it/pages/profile.dart';
 import 'package:summarize_it/screen/spashscreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -16,6 +18,10 @@ class _HomePageState extends State<HomePage> {
   final user = Supabase.instance.client.auth.currentUser;
 
   void signUserOut() async {
+    // Clear output text on logout
+    final model = Provider.of<TextSummarizationModel>(context, listen: false);
+    model.setOutputText('');
+
     print('---------------------------${user?.email}');
     await Supabase.instance.client.auth.signOut();
     Navigator.pushReplacement(

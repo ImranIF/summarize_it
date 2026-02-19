@@ -254,7 +254,7 @@ class AuthService {
           'userName': user.userMetadata?['user_name'] ??
               user.email?.split('@')[0] ??
               'User',
-          'email': user.email!,
+          'email': user.email ?? '',
           'address': '',
           'dateOfBirth': DateTime.now().toIso8601String(),
           'password': '',
