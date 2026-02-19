@@ -85,16 +85,18 @@ class _RegisterPageState extends State<RegisterPage> {
         setState(() {
           isLoading = false;
         });
-        
+
         String errorMessage = 'Registration failed. Please try again.';
         if (e.toString().contains('User already registered')) {
           errorMessage = 'Email already exists. Please use a different email.';
-        } else if (e.toString().contains('Password should be at least 6 characters')) {
+        } else if (e
+            .toString()
+            .contains('Password should be at least 6 characters')) {
           errorMessage = 'Password must be at least 6 characters long.';
         } else if (e.toString().contains('Unable to validate email address')) {
           errorMessage = 'Please enter a valid email address.';
         }
-        
+
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -157,7 +159,7 @@ class _RegisterPageState extends State<RegisterPage> {
         child: CircularProgressIndicator(),
       ),
     );
-    
+
     print('-----------------------------------------');
     // date of birth to ISO string for Supabase
     DateTime dob = DateTime.parse(dateOfBirthController.text);
@@ -166,13 +168,14 @@ class _RegisterPageState extends State<RegisterPage> {
     // Upload image to Supabase Storage if image exists
     if (imageLocalPath != null) {
       try {
-        final String imageName = 'image_${DateTime.now().millisecondsSinceEpoch}';
+        final String imageName =
+            'image_${DateTime.now().millisecondsSinceEpoch}';
         final String imagePath = 'users/$imageName';
-        
+
         await Supabase.instance.client.storage
             .from('user-images')
             .upload(imagePath, File(imageLocalPath!));
-            
+
         imageUrl = Supabase.instance.client.storage
             .from('user-images')
             .getPublicUrl(imagePath);
@@ -199,9 +202,7 @@ class _RegisterPageState extends State<RegisterPage> {
     print('-----------------------------------------sussy------------');
 
     try {
-      await Supabase.instance.client
-          .from('users')
-          .insert({
+      await Supabase.instance.client.from('users').insert({
         'id': user.id,
         'fullName': userModel.fullName,
         'userName': userModel.userName,
@@ -212,7 +213,7 @@ class _RegisterPageState extends State<RegisterPage> {
         'imageURL': userModel.imageURL,
         'postCount': userModel.postCount,
       });
-      
+
       insertIntoGraphql(userModel);
 
       Navigator.pop(context);
@@ -221,7 +222,7 @@ class _RegisterPageState extends State<RegisterPage> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('User Registered!', textAlign: TextAlign.center),
-          content: const Text('You have successfully created your account! Please check your email to verify your account.'),
+          content: const Text('You have successfully created your account!'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pushReplacement(
@@ -250,7 +251,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ],
         ),
       );
-      
+
       setState(() {
         isLoading = false;
       });
@@ -687,7 +688,7 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       // loading = true;
     });
-    
+
     try {
       final response = await Supabase.instance.client
           .from('users')

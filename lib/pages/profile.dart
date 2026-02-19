@@ -26,7 +26,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   bool isLoading = false;
-  late Stream<Map<String, dynamic>> _userStream;
+  late Stream<Map<String, dynamic>?> _userStream;
   late Stream<List<Map<String, dynamic>>> _postsStream;
 
   @override
@@ -37,7 +37,7 @@ class _ProfileState extends State<Profile> {
         .from('users')
         .stream(primaryKey: ['id'])
         .eq('email', currentUser!.email!)
-        .map((list) => list.first);
+        .map((list) => list.isNotEmpty ? list.first : null);
 
     _postsStream = Supabase.instance.client
         .from('posts')
