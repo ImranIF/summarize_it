@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:summarize_it/components/custombutton.dart';
 import 'package:summarize_it/components/customtextfield.dart';
+import 'package:summarize_it/models/usermodel.dart';
 import 'package:summarize_it/pages/profile.dart';
+import 'package:summarize_it/provider/userprovider.dart';
 import 'package:summarize_it/screen/homescreen.dart';
 import 'package:widget_zoom/widget_zoom.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -18,6 +21,9 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
+  late final UserModel? userModel =
+      Provider.of<UserProvider>(context, listen: false).userModel;
+  late String userImageURL;
   final isLiked = false;
   final List<String> likes = [];
   TextEditingController titleController = TextEditingController();
@@ -229,7 +235,7 @@ class _PostScreenState extends State<PostScreen> {
         imageUrl = Supabase.instance.client.storage
             .from('post-images')
             .getPublicUrl(imagePath);
-        print(imageUrl);
+        print('imageUrl: $imageUrl');
       } catch (e) {
         print('Error uploading image: $e');
         // Continue without image if upload fails
@@ -274,6 +280,7 @@ class _PostScreenState extends State<PostScreen> {
         'description': descriptionController.text,
         'image': imageLocalPath != null ? imageUrl : null,
         'userName': userData['userName'],
+        'userImage': userModel?.imageURL ?? '',
         'email': userEmail,
         'user_id': currentUser?.id, // Add Supabase user ID
         'timestamp': DateTime.now().toIso8601String(),
@@ -281,13 +288,16 @@ class _PostScreenState extends State<PostScreen> {
         'likes': likes,
       };
 
+      print('postData: $postData');
+
       final postResponse = await Supabase.instance.client
           .from('posts')
           .insert(postData)
           .select()
           .single();
 
-      print('Post created with ID: ${postResponse['id']}');
+      print('Created post with ID: ${postResponse['id']}');
+      print('userModel imageURL: ${userModel?.imageURL}');
 
       // update user's postcount
       await Supabase.instance.client.from('users').update(

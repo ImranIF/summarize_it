@@ -195,8 +195,8 @@ class _CommentScreenState extends State<CommentScreen> {
 
                                     print(
                                         'Time of the comment: ------------$commentTime-----------------');
-                                    final formattedTime =
-                                        timeago.format(commentTime);
+                                    // final formattedTime =
+                                    //     timeago.format(commentTime);
                                     final formattedCommentTime =
                                         timeago.format(commentTime);
                                     return Container(

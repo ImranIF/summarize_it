@@ -802,17 +802,36 @@ class _ProfileState extends State<Profile> {
                       )),
                   ElevatedButton(
                       onPressed: () async {
+                        final currentUser =
+                            Supabase.instance.client.auth.currentUser;
+                        if (currentUser?.email == null) {
+                          Navigator.of(context).pop();
+                          return;
+                        }
+
                         await Supabase.instance.client
                             .from('posts')
                             .delete()
                             .eq('id', post['id']);
 
+                        final userResponse = await Supabase.instance.client
+                            .from('users')
+                            .select('postCount')
+                            .eq('email', currentUser!.email!)
+                            .single();
+
+                        final currentPostCount =
+                            (userResponse['postCount'] as int?) ?? 0;
+
+                        await Supabase.instance.client.from('users').update({
+                          'postCount': currentPostCount - 1,
+                        }).eq('email', currentUser.email!);
+
                         setState(() {
                           _postsStream = Supabase.instance.client
                               .from('posts')
                               .stream(primaryKey: ['id'])
-                              .eq('user_id',
-                                  Supabase.instance.client.auth.currentUser!.id)
+                              .eq('user_id', currentUser.id)
                               .order('timestamp', ascending: false);
                         });
 
